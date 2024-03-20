@@ -71,7 +71,7 @@ connectToRabbitMQ();
 app.use('/api/auth', authRoutes);
 
 // Start de server
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });
