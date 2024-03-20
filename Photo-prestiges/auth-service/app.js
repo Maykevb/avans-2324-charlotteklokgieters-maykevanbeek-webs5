@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
 const amqp = require('amqplib');
 const User = require('./models/User');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 
@@ -25,8 +26,8 @@ async function connectToRabbitMQ() {
         const queueName = 'auth_service_queue';
 
         // Verbind de queue met de exchange en routing key
-        await channel.assertExchange(exchangeName, 'direct', { durable: false });
-        await channel.assertQueue(queueName, { exclusive: false });
+        await channel.assertExchange(exchangeName, 'direct', { durable: true }); // Duurzaamheid op true zetten
+        await channel.assertQueue(queueName, { durable: true }); // Duurzaamheid op true zetten
         await channel.bindQueue(queueName, exchangeName, 'user.created');
 
         // Luister naar berichten van de queue
