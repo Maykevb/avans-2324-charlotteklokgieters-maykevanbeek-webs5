@@ -7,8 +7,8 @@ const cors = require('cors');
 
 app.use(cors())
 app.use(express.json());
-app.use('/register', registerRoute);
-app.use('/auth', authRoute);
+app.post('/register', registerRoute);
+app.post('/login', authRoute);
 
 app.listen(port, () => {
     console.log('Server is up on port ' + port)

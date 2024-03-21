@@ -48,8 +48,6 @@ async function connectToRabbitMQ() {
                         role: user.role
                     });
 
-                    console.log(newUser);
-
                     await newUser.save(); // Opslaan van de gebruiker
 
                     console.log('Gebruiker succesvol opgeslagen in de database van auth-service');

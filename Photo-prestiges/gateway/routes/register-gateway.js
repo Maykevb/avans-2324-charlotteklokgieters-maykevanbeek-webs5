@@ -11,13 +11,12 @@ const options = {
     resetTimeout: 3000 // After 3 seconds, try again.
 };
 const registerCB = new CircuitBreaker(callService, options);
-let serviceAddress = null;
 
 router.post('/register', (req, res) => {
     let userData = req.body;
     if (!userData) return res.status(400).send('Ongeldige gegevens voor registratie.');
 
-    registerCB.fire('post', registerService, '/register', userData)
+    registerCB.fire('post', registerService, '/api/users/register', userData)
         .then(response => {
             res.send(response);
         })
@@ -27,32 +26,21 @@ router.post('/register', (req, res) => {
         });
 });
 
-function callService(method,serviceAddress,resource,body){return new Promise(( resolve,reject )=>{
-    serviceAddress = formatWithSlashes( serviceAddress );
-    if( method === 'post' ){
-        axios.post(`${ serviceAddress }${ resource }`,body )
-            .then(( mess )=>{
-                resolve( 'van registerrouter : '+ mess.data);
-            }).catch(( e )=>{
-            console.log('Error door axios ' + e.toString())
-            reject( 'Error tijdens request in axios');
-        });
-
-    }else{
-        axios.get(`${serviceAddress}${resource}`)
-            .then((mess)=>{
-                resolve('van response registerroute : ' + mess.data);
+function callService(method, serviceAddress, resource, data) {
+    return new Promise((resolve) => {
+        let url = `${serviceAddress}${resource}`;
+        axios[method](url, data)
+            .then(response => {
+                resolve(response.data);
             })
-    }
-})
+            .catch(error => {
+                console.error(`Fout tijdens het uitvoeren van het verzoek (${method.toUpperCase()} ${url}):`, error);
+            });
+    });
 }
 
 registerCB.fallback(() => {
     return 'Register service momenteel niet beschikbaar. Probeer het later opnieuw.';
 });
-
-function formatWithSlashes(serviceAddress){
-    return (registerService.endsWith('/'))? serviceAddress : '/';
-}
 
 module.exports = router;
