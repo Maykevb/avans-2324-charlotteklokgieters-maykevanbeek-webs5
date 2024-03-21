@@ -5,6 +5,10 @@ const registerRoute = require('./routes/register-gateway');
 const authRoute = require('./routes/auth-gateway');
 const cors = require('cors');
 
+const swaggerUI = require('swagger-ui-express')
+const swaggerDocument = require('./swagger.json');
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
 app.use(cors())
 app.use(express.json());
 app.post('/register', registerRoute);
