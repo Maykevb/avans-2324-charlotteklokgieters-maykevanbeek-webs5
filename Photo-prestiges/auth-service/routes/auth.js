@@ -1,39 +1,37 @@
+require('dotenv').config();
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); // Voeg JWT toe
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-require('dotenv').config();
+const gatewayToken = process.env.GATEWAY_TOKEN;
 
 // Route voor het inloggen van een gebruiker
-router.post('/login', async (req, res) => {
+router.post('/login', verifyToken, async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Controleer of de gebruiker bestaat
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker niet gevonden' });
         }
 
-        // Controleer of het wachtwoord overeenkomt
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ msg: 'Ongeldig wachtwoord' });
         }
 
-        // JWT-payload aanmaken
         const payload = {
             user: {
                 id: user.id
             }
         };
 
-        // Token genereren
         jwt.sign(
             payload,
-            process.env.JWT_SECRET, // Gebruik een geheime sleutel, bijv. uit een environment variabele
-            { expiresIn: 3600 }, // Optioneel: token vervalt na 1 uur
+            process.env.JWT_SECRET,
+            { expiresIn: 3600 },
             (err, token) => {
                 if (err) throw err;
                 res.json({ token });
@@ -44,5 +42,17 @@ router.post('/login', async (req, res) => {
         res.status(500).send('Serverfout');
     }
 });
+
+function verifyToken(req, res, next) {
+    const token = req.header('Authorization').replace('Bearer ', '');
+
+    if (!token || token !== gatewayToken) {
+        console.log('Unauthorized access detected.');
+        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+    } else {
+        console.log('Access granted.');
+    }
+    next();
+}
 
 module.exports = router;
