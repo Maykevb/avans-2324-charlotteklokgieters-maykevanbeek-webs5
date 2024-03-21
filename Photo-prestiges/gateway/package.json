@@ -1,19 +1,18 @@
 {
-  "name": "register-service",
+  "name": "gateway",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "amqplib": "^0.10.3",
-    "bcryptjs": "^2.4.3",
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
-    "mongoose": "^8.2.2"
+    "opossum": "^8.1.3"
   }
 }

@@ -1,12 +1,13 @@
+require('dotenv').config();
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const amqp = require('amqplib');
+const gatewayToken = process.env.GATEWAY_TOKEN;
+let channel = null;
 
-let channel = null; // Variabele om het kanaal voor RabbitMQ op te slaan
-
-// Functie om een verbinding met RabbitMQ tot stand te brengen
 async function connectToRabbitMQ() {
     try {
         const connection = await amqp.connect('amqp://localhost');
@@ -16,7 +17,6 @@ async function connectToRabbitMQ() {
         const queueName = 'user_queue';
         const routingKey = 'user.created';
 
-        // Zorg ervoor dat de exchange en de queue duurzaam zijn
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, routingKey);
@@ -24,22 +24,20 @@ async function connectToRabbitMQ() {
         console.log('Verbonden met RabbitMQ');
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error);
-        // Hier kun je code toevoegen om te bufferen of berichten lokaal op te slaan
     }
 }
 
 // Route voor het registreren van een nieuwe gebruiker
-router.post('/register', async (req, res) => {
+router.post('/register', verifyToken, async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
-        // Controleer of de gebruiker al bestaat
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat al' });
+            res.json({ msg: 'Gebruiker bestaat al' });
+            return res.status(400);
         }
 
-        // Maak een nieuwe gebruiker aan
         user = new User({
             username,
             email,
@@ -47,14 +45,11 @@ router.post('/register', async (req, res) => {
             role
         });
 
-        // Hash het wachtwoord
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
-        // Sla de gebruiker op in de database
         await user.save();
 
-        // Verstuur een duurzaam bericht naar RabbitMQ
         if (channel) {
             const exchangeName = 'user_exchange';
             const routingKey = 'user.created';
@@ -63,7 +58,6 @@ router.post('/register', async (req, res) => {
             console.log('User created message sent to RabbitMQ');
         } else {
             console.log('RabbitMQ channel is not available. Message not sent.');
-            // Hier kun je code toevoegen om te bufferen of berichten lokaal op te slaan
         }
 
         res.json({ msg: 'Gebruiker succesvol geregistreerd' });
@@ -73,7 +67,19 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Verbind met RabbitMQ bij het starten van de server
+function verifyToken(req, res, next) {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    console.log(token + gatewayToken);
+
+    if (!token || token !== gatewayToken) {
+        console.log('Unauthorized access detected.');
+        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+    } else {
+        console.log('Access granted.');
+    }
+    next();
+}
+
 connectToRabbitMQ();
 
 module.exports = router;

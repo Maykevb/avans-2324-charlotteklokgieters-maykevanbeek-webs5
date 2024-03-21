@@ -48,8 +48,6 @@ async function connectToRabbitMQ() {
                         role: user.role
                     });
 
-                    console.log(newUser);
-
                     await newUser.save(); // Opslaan van de gebruiker
 
                     console.log('Gebruiker succesvol opgeslagen in de database van auth-service');
@@ -71,7 +69,7 @@ connectToRabbitMQ();
 app.use('/api/auth', authRoutes);
 
 // Start de server
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });
