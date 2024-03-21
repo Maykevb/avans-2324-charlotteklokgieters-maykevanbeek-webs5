@@ -17,7 +17,7 @@ router.post('/login', (req, res) => {
     let credentials = req.body;
     if (!credentials) return res.status(400).send('Ongeldige inloggegevens.');
 
-    authCB.fire('post', authService, '/api/auth/login', credentials, gatewayToken)
+    authCB.fire('post', authService, '/auth/login', credentials, gatewayToken)
         .then(response => {
             res.send(response);
         })

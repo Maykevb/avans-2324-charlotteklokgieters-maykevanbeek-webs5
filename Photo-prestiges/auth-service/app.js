@@ -66,7 +66,7 @@ async function connectToRabbitMQ() {
 connectToRabbitMQ();
 
 // Routes
-app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 
 // Start de server
 const PORT = process.env.PORT || 3000;

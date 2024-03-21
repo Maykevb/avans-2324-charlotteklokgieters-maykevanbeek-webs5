@@ -17,7 +17,7 @@ router.post('/register', (req, res) => {
     let userData = req.body;
     if (!userData) return res.status(400).send('Ongeldige gegevens voor registratie.');
 
-    registerCB.fire('post', registerService, '/api/users/register', userData, gatewayToken)
+    registerCB.fire('post', registerService, '/users/register', userData, gatewayToken)
         .then(response => {
             res.send(response);
         })
