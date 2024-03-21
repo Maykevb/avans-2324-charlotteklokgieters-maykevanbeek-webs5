@@ -131,3 +131,4 @@ dist
 
 *.xml
 *.iml
+/Photo-prestiges/.idea
