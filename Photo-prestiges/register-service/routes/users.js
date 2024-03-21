@@ -34,7 +34,8 @@ router.post('/register', verifyToken, async (req, res) => {
 
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat al' });
+            res.json({ msg: 'Gebruiker bestaat al' });
+            return res.status(400);
         }
 
         user = new User({
