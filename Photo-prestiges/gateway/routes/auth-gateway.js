@@ -28,7 +28,7 @@ router.post('/login', (req, res) => {
         });
 });
 
-function callService(method, serviceAddress, resource, data, token) {
+function callService(method, serviceAddress, resource, data) {
     return new Promise((resolve, reject) => {
         let url = `${serviceAddress}${resource}`;
 
