@@ -50,14 +50,25 @@ function callService(method, serviceAddress, resource, data) {
                 resolve(response.data);
             })
             .catch(error => {
-                console.error(`Fout tijdens het uitvoeren van het verzoek (${method.toUpperCase()} ${url}):`);
-                reject(error);
+                reject(error.response);
             });
     });
 }
 
-registerCB.fallback(() => {
-    return 'Register service momenteel niet beschikbaar. Probeer het later opnieuw.';
+registerCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
+    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+        const status = error.status || 'Onbekend';
+        const statusText = error.statusText || 'Onbekend';
+        const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';
+
+        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource}):`, status, statusText, errorMsg);
+
+        return `Oopsie, er ging iets mis. Fout: ${status} - ${statusText} - ${errorMsg}. Probeer het later opnieuw.`;
+    } else {
+        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource})`);
+    }
+
+    return "De register service is offline. Probeer het later nog eens.";
 });
 
 module.exports = router;

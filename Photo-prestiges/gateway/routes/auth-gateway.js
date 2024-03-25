@@ -16,7 +16,7 @@ const authCB = new CircuitBreaker(callService, options);
 // Route voor het inloggen van een gebruiker
 router.post('/login', (req, res) => {
     let credentials = req.body;
-    if (!credentials || !credentials.email || !credentials.password) {
+    if (!credentials || !credentials.username || !credentials.password) {
         return res.status(400).send('Ongeldige inloggegevens.');
     }
 
@@ -49,14 +49,26 @@ function callService(method, serviceAddress, resource, data) {
                 resolve(response.data);
             })
             .catch(error => {
-                console.error(`Fout tijdens het uitvoeren van het verzoek (${method.toUpperCase()} ${url}):`);
-                reject(error);
+                reject(error.response);
             });
     });
 }
 
-authCB.fallback(() => {
-    return 'Auth service momenteel niet beschikbaar. Probeer het later opnieuw.';
+authCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
+    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+        const status = error.status || 'Onbekend';
+        const statusText = error.statusText || 'Onbekend';
+        const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';
+
+        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource}):`, status, statusText, errorMsg);
+
+        return `Oopsie, er ging iets mis. Fout: ${status} - ${statusText} - ${errorMsg}. Probeer het later opnieuw.`;
+    } else {
+        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource})`);
+    }
+
+    return "De auth service is offline. Probeer het later nog eens.";
 });
+
 
 module.exports = router;
