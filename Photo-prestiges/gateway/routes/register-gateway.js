@@ -7,12 +7,13 @@ const CircuitBreaker = require('opossum');
 const registerService = process.env.REGISTERSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const options = {
-    timeout: 3000, // If our function takes longer than 3 seconds, trigger a failure
-    errorThresholdPercentage: 50, // When 50% of requests fail, trip the circuit
-    resetTimeout: 3000 // After 3 seconds, try again.
+    timeout: 3000, // Als onze functie langer dan 3 seconden duurt, wordt er een fout getriggerd
+    errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
+    resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
 };
 const registerCB = new CircuitBreaker(callService, options);
 
+// Route voor het registreren van een nieuwe gebruiker
 router.post('/register', (req, res) => {
     let userData = req.body;
     if (!userData) return res.status(400).send('Ongeldige gegevens voor registratie.');
@@ -27,12 +28,12 @@ router.post('/register', (req, res) => {
         });
 });
 
-function callService(method, serviceAddress, resource, data, token) {
+function callService(method, serviceAddress, resource, data) {
     return new Promise((resolve, reject) => {
         let url = `${serviceAddress}${resource}`;
 
         const headers = {
-            'Authorization': `Bearer ${token}`,
+            'Gateway': `${gatewayToken}`,
             'Content-Type': 'application/json'
         };
 
@@ -46,12 +47,11 @@ function callService(method, serviceAddress, resource, data, token) {
                 resolve(response.data);
             })
             .catch(error => {
-                console.error(`Fout tijdens het uitvoeren van het verzoek (${method.toUpperCase()} ${url}):`, error);
+                console.error(`Fout tijdens het uitvoeren van het verzoek (${method.toUpperCase()} ${url}):`);
                 reject(error);
             });
     });
 }
-
 
 registerCB.fallback(() => {
     return 'Register service momenteel niet beschikbaar. Probeer het later opnieuw.';

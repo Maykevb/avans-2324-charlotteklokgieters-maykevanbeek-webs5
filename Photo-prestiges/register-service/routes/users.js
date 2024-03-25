@@ -67,9 +67,9 @@ router.post('/register', verifyToken, async (req, res) => {
     }
 });
 
+// Middleware om te controleren of het verzoek via de gateway komt
 function verifyToken(req, res, next) {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    console.log(token + gatewayToken);
+    const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
@@ -77,6 +77,7 @@ function verifyToken(req, res, next) {
     } else {
         console.log('Access granted.');
     }
+
     next();
 }
 
