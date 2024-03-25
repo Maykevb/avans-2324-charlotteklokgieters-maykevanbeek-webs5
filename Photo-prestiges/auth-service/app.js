@@ -4,10 +4,8 @@ const authRoutes = require('./routes/auth');
 const amqp = require('amqplib');
 const User = require('./models/User');
 const bcrypt = require('bcryptjs');
-
 const app = express();
 
-// Middleware voor JSON-parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -24,12 +22,10 @@ async function connectToRabbitMQ() {
         const exchangeName = 'user_exchange';
         const queueName = 'auth_service_queue';
 
-        // Verbind de queue met de exchange en routing key
-        await channel.assertExchange(exchangeName, 'direct', { durable: true }); // Duurzaamheid op true zetten
-        await channel.assertQueue(queueName, { durable: true }); // Duurzaamheid op true zetten
+        await channel.assertExchange(exchangeName, 'direct', { durable: true });
+        await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, 'user.created');
 
-        // Luister naar berichten van de queue
         channel.consume(queueName, async (message) => {
             if (message) {
                 try {
@@ -39,15 +35,13 @@ async function connectToRabbitMQ() {
                     const isPasswordHashed = /^(?=.*[a-zA-Z])(?=.*[0-9])/.test(user.password);
                     const hashedPassword = isPasswordHashed ? user.password : await bcrypt.hash(user.password, 10);
 
-                    // Sla de ontvangen gebruiker op in de database
                     const newUser = new User({
                         username: user.username,
                         email: user.email,
                         password: hashedPassword,
                         role: user.role
                     });
-
-                    await newUser.save(); // Opslaan van de gebruiker
+                    await newUser.save();
 
                     console.log('Gebruiker succesvol opgeslagen in de database van auth-service');
                 } catch (error) {
@@ -67,7 +61,7 @@ connectToRabbitMQ();
 // Routes
 app.use('/auth', authRoutes);
 
-// Start de server
+// Het opstarten van de server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);

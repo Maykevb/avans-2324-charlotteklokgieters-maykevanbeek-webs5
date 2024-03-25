@@ -29,7 +29,7 @@ async function connectToRabbitMQ() {
 }
 
 // Route voor het registreren van een nieuwe gebruiker
-router.post('/register', async (req, res) => {
+router.post('/register', verifyToken, async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
@@ -83,9 +83,10 @@ async function sendConfirmationEmail(email, username, password) {
     }
 }
 
+
+// Middleware om te controleren of het verzoek via de gateway komt
 function verifyToken(req, res, next) {
-    const token = req.header('Authorization').replace('Bearer ', '');
-    console.log(token + gatewayToken);
+    const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
@@ -93,6 +94,7 @@ function verifyToken(req, res, next) {
     } else {
         console.log('Access granted.');
     }
+
     next();
 }
 
