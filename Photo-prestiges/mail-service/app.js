@@ -1,19 +1,19 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/auth');
+const confRoutes = require('./routes/confirmation.js');
 const amqp = require('amqplib');
 const User = require('./models/User');
-const bcrypt = require('bcryptjs');
 
 const app = express();
 
 // Middleware voor JSON-parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/confirmation', confRoutes);
 
 // MongoDB-verbinding
-mongoose.connect('mongodb://localhost:27017/auth-service', {
-}).then(() => console.log('MongoDB Connected'))
+mongoose.connect('mongodb://localhost:27017/mail-service')
+    .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
 // RabbitMQ-verbinding
@@ -49,7 +49,7 @@ async function connectToRabbitMQ() {
 
                     await newUser.save(); // Opslaan van de gebruiker
 
-                    console.log('Gebruiker succesvol opgeslagen in de database van auth-service');
+                    console.log('Gebruiker succesvol opgeslagen in de database van mail-service');
                 } catch (error) {
                     console.error('Fout bij het opslaan van de gebruiker:', error);
                 }
@@ -64,11 +64,8 @@ async function connectToRabbitMQ() {
 
 connectToRabbitMQ();
 
-// Routes
-app.use('/auth', authRoutes);
-
 // Start de server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });
