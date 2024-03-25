@@ -5,10 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auth-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/auth-service/routes/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/routes/auth.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/routes/auth-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/auth-gateway.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/routes/register-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/register-gateway.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/register-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/register-service/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register-service/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/register-service/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register-service/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/register-service/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/register-service/routes/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/register-service/routes/users.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +40,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Node.js.users.js.executor&quot;: &quot;Debug&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;feature/swagger&quot;,
@@ -78,6 +84,7 @@
       <workItem from="1710936069872" duration="203000" />
       <workItem from="1710936284330" duration="68000" />
       <workItem from="1710936455071" duration="4914000" />
+      <workItem from="1711353470870" duration="3959000" />
     </task>
     <servers />
   </component>
