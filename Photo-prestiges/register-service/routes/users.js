@@ -5,7 +5,6 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const amqp = require('amqplib');
-const axios = require('axios');
 const gatewayToken = process.env.GATEWAY_TOKEN;
 let channel = null;
 
@@ -61,28 +60,12 @@ router.post('/register', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent.');
         }
 
-        // Call mail service to send confirmation email
-        await sendConfirmationEmail(email, username, password);
-
         res.json({ msg: 'Gebruiker succesvol geregistreerd' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
     }
 });
-
-// Function to call mail service for sending confirmation email
-async function sendConfirmationEmail(email, username, password) {
-    try {
-        // Make a POST request to the mail service endpoint
-        await axios.post('http://localhost:6000/confirmation/registration', { username, email, password });
-        console.log('Confirmation email request sent to mail service');
-    } catch (error) {
-        console.error('Error sending confirmation email request to mail service:', error);
-        throw new Error('Failed to send confirmation email request');
-    }
-}
-
 
 // Middleware om te controleren of het verzoek via de gateway komt
 function verifyToken(req, res, next) {

@@ -8,6 +8,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/auth', authRoutes);
 
 // MongoDB-verbinding
 mongoose.connect('mongodb://localhost:27017/auth-service', {
@@ -57,9 +58,6 @@ async function connectToRabbitMQ() {
 }
 
 connectToRabbitMQ();
-
-// Routes
-app.use('/auth', authRoutes);
 
 // Het opstarten van de server
 const PORT = process.env.PORT || 3000;

@@ -16,7 +16,10 @@ const registerCB = new CircuitBreaker(callService, options);
 // Route voor het registreren van een nieuwe gebruiker
 router.post('/register', (req, res) => {
     let userData = req.body;
-    if (!userData) return res.status(400).send('Ongeldige gegevens voor registratie.');
+    const validRoles = ['participant', 'targetOwner']
+    if (!userData || !userData.username || !userData.email || !userData.password || !userData.role || !validRoles.includes(userData.role)) {
+        return res.status(400).send('Ongeldige gegevens voor registratie.');
+    }
 
     registerCB.fire('post', registerService, '/users/register', userData, gatewayToken)
         .then(response => {

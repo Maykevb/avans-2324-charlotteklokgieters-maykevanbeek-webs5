@@ -16,7 +16,9 @@ const authCB = new CircuitBreaker(callService, options);
 // Route voor het inloggen van een gebruiker
 router.post('/login', (req, res) => {
     let credentials = req.body;
-    if (!credentials) return res.status(400).send('Ongeldige inloggegevens.');
+    if (!credentials || !credentials.email || !credentials.password) {
+        return res.status(400).send('Ongeldige inloggegevens.');
+    }
 
     authCB.fire('post', authService, '/auth/login', credentials, gatewayToken)
         .then(response => {
