@@ -7,7 +7,7 @@ const CircuitBreaker = require('opossum');
 const authService    =  process.env.AUTHSERVICE
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const options = {
-    timeout: 3000, // Als onze functie langer dan 3 seconden duurt, wordt er een fout getriggerd
+    timeout: 3000, // Als de functie langer dan 3 seconden duurt, wordt er een fout getriggerd
     errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
     resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
 };

@@ -5,11 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="merge">
+      <change afterPath="$PROJECT_DIR$/contest-service/app.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contest-service/models/Contest.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contest-service/models/Submission.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contest-service/models/User.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/contest-service/routes/contests.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth-service/routes/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/auth-service/routes/auth.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/routes/auth-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/auth-gateway.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/routes/register-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/register-gateway.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/register-service/routes/users.js" beforeDir="false" afterPath="$PROJECT_DIR$/register-service/routes/users.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +48,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "feature/swagger",
-    "last_opened_file_path": "C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/gateway",
+    "last_opened_file_path": "C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/contest-service",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -53,16 +60,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service" />
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\Models" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\gateway" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\auth-service" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\auth-service\models" />
-      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\security-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\routes" />
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\Models" />
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\register-service\models" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\auth-service" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\gateway" />
-      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\auth-service\models" />
-      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -82,6 +91,7 @@
       <workItem from="1710936284330" duration="68000" />
       <workItem from="1710936455071" duration="4914000" />
       <workItem from="1711353470870" duration="3959000" />
+      <workItem from="1711439984396" duration="6285000" />
     </task>
     <task id="LOCAL-00001" summary="merge">
       <option name="closed" value="true" />
