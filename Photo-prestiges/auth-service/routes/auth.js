@@ -10,9 +10,9 @@ const gatewayToken = process.env.GATEWAY_TOKEN;
 // Route voor het inloggen van een gebruiker
 router.post('/login', verifyToken, async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { username, password } = req.body;
 
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker niet gevonden' });
         }
@@ -29,7 +29,8 @@ router.post('/login', verifyToken, async (req, res) => {
 
         const payload = {
             user: {
-                id: user.id
+                id: user.id,
+                username: user.username
             }
         };
 

@@ -97,7 +97,55 @@
               }
             }
           }
-        }
+        },
+        "security": []
+      }
+    },
+    "/create-contest": {
+      "post": {
+        "summary": "Log in.",
+        "description": "Logging in with the given email and password.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string",
+                    "description": "The email of the user."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "The password of the user."
+                  },
+                  "place": {
+                    "type": "string",
+                    "description": "The password of the user."
+                  },
+                  "endTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The password of the user."
+                  }
+                },
+                "required": [
+                  "username",
+                  "endTime",
+                  "place"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     },
     "/login": {
@@ -111,10 +159,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "email": {
+                  "username": {
                     "type": "string",
-                    "format": "email",
-                    "description": "The email of the user."
+                    "description": "The username of the user."
                   },
                   "password": {
                     "type": "string",
@@ -122,7 +169,7 @@
                     "description": "The password of the user."
                   }
                 },
-                "required": ["email", "password"]
+                "required": ["username", "password"]
               }
             }
           }
@@ -176,7 +223,19 @@
               }
             }
           }
-        }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "apiKey",
+        "name": "authorization",
+        "in": "header",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }

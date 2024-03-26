@@ -4,24 +4,26 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const CircuitBreaker = require('opossum');
-const registerService = process.env.REGISTERSERVICE;
+const contestService = process.env.CONTESTSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const options = {
     timeout: 3000, // Als de functie langer dan 3 seconden duurt, wordt er een fout getriggerd
     errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
     resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
 };
-const registerCB = new CircuitBreaker(callService, options);
+const contestCB = new CircuitBreaker(callService, options);
+const jwt = require('jsonwebtoken');
 
-// Route voor het registreren van een nieuwe gebruiker
-router.post('/register', (req, res) => {
-    let userData = req.body;
-    const validRoles = ['participant', 'targetOwner']
-    if (!userData || !userData.username || !userData.email || !userData.password || !userData.role || !validRoles.includes(userData.role)) {
-        return res.status(400).send('Ongeldige gegevens voor registratie.');
+// Route voor het aanmaken van een nieuwe wedstrijd
+router.post('/create-contest', verifyToken, (req, res) => {
+    let contestData = req.body;
+    if (!contestData || !contestData.place || !contestData.endTime) {
+        return res.status(400).send('Ongeldige gegevens voor het aanmaken van een wedstrijd.');
     }
 
-    registerCB.fire('post', registerService, '/users/register', userData, gatewayToken)
+    contestData.user = req.user.username;
+
+    contestCB.fire('post', contestService, '/contests/create', contestData, gatewayToken)
         .then(response => {
             res.send(response);
         })
@@ -55,7 +57,24 @@ function callService(method, serviceAddress, resource, data) {
     });
 }
 
-registerCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
+function verifyToken(req, res, next) {
+    const token = req.header('authorization').replace('Bearer ', '');
+
+    if (!token) {
+        return res.status(401).send('Geen JWT-token verstrekt');
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_TARGETOWNER);
+        req.user = decoded.user;
+        next();
+    } catch (error) {
+        console.log(error)
+        return res.status(401).send('Ongeldige JWT-token');
+    }
+}
+
+contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
     if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
         const status = error.status || 'Onbekend';
         const statusText = error.statusText || 'Onbekend';
@@ -68,7 +87,7 @@ registerCB.fallback((method, serviceAddress, resource, data, gateway, error) => 
         console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource})`);
     }
 
-    return "De register service is offline. Probeer het later nog eens.";
+    return "De contest service is offline. Probeer het later nog eens.";
 });
 
 module.exports = router;
