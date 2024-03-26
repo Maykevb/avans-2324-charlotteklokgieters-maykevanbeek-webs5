@@ -30,13 +30,14 @@ async function connectToRabbitMQ() {
 // Route voor het aanmaken van een nieuwe wedstrijd
 router.post('/create', verifyToken, async (req, res) => {
     try {
-        console.log(req);
-        const { username, description, place, endTime } = req.body;
+        const { description, place, endTime } = req.body;
+        let username = req.body.user
 
         let user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
         }
+
         if(user.role !== 'targetOwner') {
             return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd aan te maken'})
         }

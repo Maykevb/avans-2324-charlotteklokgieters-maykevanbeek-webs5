@@ -17,11 +17,11 @@ const jwt = require('jsonwebtoken');
 // Route voor het aanmaken van een nieuwe wedstrijd
 router.post('/create-contest', verifyToken, (req, res) => {
     let contestData = req.body;
-    if (!contestData || !contestData.username || !contestData.place || !contestData.endTime) {
+    if (!contestData || !contestData.place || !contestData.endTime) {
         return res.status(400).send('Ongeldige gegevens voor het aanmaken van een wedstrijd.');
     }
 
-    contestData.userId = req.user.id;
+    contestData.user = req.user.username;
 
     contestCB.fire('post', contestService, '/contests/create', contestData, gatewayToken)
         .then(response => {
@@ -58,17 +58,18 @@ function callService(method, serviceAddress, resource, data) {
 }
 
 function verifyToken(req, res, next) {
-    const token = req.header('Authorization').replace('Bearer ', '');
+    const token = req.header('authorization').replace('Bearer ', '');
 
     if (!token) {
         return res.status(401).send('Geen JWT-token verstrekt');
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET_PARTICIPANT);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_TARGETOWNER);
         req.user = decoded.user;
         next();
     } catch (error) {
+        console.log(error)
         return res.status(401).send('Ongeldige JWT-token');
     }
 }
