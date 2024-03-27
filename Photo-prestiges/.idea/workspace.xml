@@ -5,11 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="merge">
+      <change afterPath="$PROJECT_DIR$/gateway/routes/read-gateway.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/read-service/app.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/read-service/models/Contest.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/read-service/routes/read.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/contest-service/models/Submission.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/models/Submission.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contest-service/routes/contests.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/routes/contests.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gateway/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +43,7 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "Merging feature/fotoUpload",
-    "last_opened_file_path": "C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/contest-service",
+    "last_opened_file_path": "C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/read-service",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -53,11 +55,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\read-service" />
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\read-service\models" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\Models" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\gateway" />
-      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\auth-service" />
-      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\auth-service\models" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\routes" />

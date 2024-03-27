@@ -27,14 +27,25 @@ async function connectToRabbitMQ() {
 
         console.log('Verbonden met RabbitMQ queue 1');
 
-        // Queue 2 for submissions
-        const otherExchangeName = 'submission_exchange';
-        const otherQueueName = 'submission_queue';
-        const otherRoutingKey = 'submission.created';
+        // Queue 2 for update contest
+        const UpdateExchangeName = 'update_contest_exchange';
+        const UpdateQueueName = 'update_contest_queue';
+        const UpdateRoutingKey = 'contest.updated';
 
-        await channel.assertExchange(otherExchangeName, 'direct', { durable: true });
-        await channel.assertQueue(otherQueueName, { durable: true });
-        await channel.bindQueue(otherQueueName, otherExchangeName, otherRoutingKey);
+        await channel.assertExchange(exchangeName, 'direct', { durable: true });
+        await channel.assertQueue(queueName, { durable: true });
+        await channel.bindQueue(queueName, exchangeName, routingKey);
+
+        console.log('Verbonden met RabbitMQ queue 1');
+
+        // Queue 3 for submissions
+        const SubmissionExchangeName = 'submission_exchange';
+        const SubmissionQueueName = 'submission_queue';
+        const SubmissionRoutingKey = 'submission.created';
+
+        await channel.assertExchange(SubmissionExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(SubmissionQueueName, { durable: true });
+        await channel.bindQueue(SubmissionQueueName, SubmissionExchangeName, SubmissionRoutingKey);
 
         console.log('Verbonden met RabbitMQ queue 2');
     } catch (error) {
@@ -68,7 +79,7 @@ router.post('/create', verifyToken, async (req, res) => {
         if (channel) {
             const exchangeName = 'contest_exchange';
             const routingKey = 'contest.created';
-            const message = JSON.stringify(user);
+            const message = JSON.stringify(contest);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
             console.log('Contest created message sent to RabbitMQ');
         } else {
@@ -116,7 +127,7 @@ router.post('/register', verifyToken, async (req, res) => {
         if (channel) {
             const exchangeName = 'submission_exchange';
             const routingKey = 'submission.created';
-            const message = JSON.stringify(user);
+            const message = JSON.stringify(submission);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
             console.log('Submission created message sent to RabbitMQ');
         } else {
@@ -151,9 +162,9 @@ router.post('/update', verifyToken, async (req, res) => {
         await contest.save();
 
         if (channel) {
-            const exchangeName = 'contest_exchange';
+            const exchangeName = 'update_contest_exchange';
             const routingKey = 'contest.updated';
-            const message = JSON.stringify(user);
+            const message = JSON.stringify(contest);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
             console.log('Contest updated message sent to RabbitMQ');
         } else {
