@@ -75,7 +75,7 @@ router.post('/create', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Contest succesvol aangemaakt' });
+        res.json({ msg: 'Contest succesvol aangemaakt', contestId: contest._id });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
@@ -95,6 +95,8 @@ router.post('/update', verifyToken, async (req, res) => {
         if (user.role !== 'targetOwner') {
             return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd te updaten'})
         }
+
+        // const base64Image = Buffer.from(image, 'binary').toString('base64');
 
         let contest = await Contest.findById( new ObjectId(id) )
         contest.place = place

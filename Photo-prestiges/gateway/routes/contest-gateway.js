@@ -3,6 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const multer = require('multer');
+const upload = multer();
+
 const CircuitBreaker = require('opossum');
 const contestService = process.env.CONTESTSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
@@ -33,13 +36,16 @@ router.post('/create-contest', verifyTokenTarget, (req, res) => {
         });
 });
 
-router.post('/update-contest', verifyTokenTarget, (req, res) => {
+router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, res) => {
     let contestData = req.body;
-    if (!contestData || !contestData.id || !contestData.place || !contestData.image) {
+    if (!contestData || !contestData.id || !contestData.place || !req.file) {
         return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
     }
 
+    const base64Image = Buffer.from(req.file.buffer, 'binary').toString('base64');
+
     contestData.user = req.user.username;
+    contestData.image = base64Image;
 
     contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
         .then(response => {
