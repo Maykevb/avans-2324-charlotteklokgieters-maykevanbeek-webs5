@@ -1,14 +1,15 @@
-const User = require('/register-service/models/User');
-const Contest = require('/contest-service/models/Contest');
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 const submissionSchema = new mongoose.Schema({
     contest: {
-        type: Contest,
+        type: ObjectId,
+        ref: 'Contest',
         required: true
     },
     participant: {
-        type: User,
+        type: ObjectId,
+        ref: 'User',
         required: true,
     },
     image: {

@@ -17,6 +17,7 @@ app.post('/register', registerRoute);
 app.post('/login', authRoute);
 app.post('/create-contest', contestRoute)
 app.post('/update-contest', contestRoute)
+app.post('/register-for-contest', contestRoute)
 
 app.listen(port, () => {
     console.log('Server is up on port ' + port)

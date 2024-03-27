@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="merge">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contest-service/models/Submission.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/models/Submission.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contest-service/routes/contests.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/routes/contests.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,23 +34,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Node.js.auth-gateway.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.users.js.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/swagger&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/contest-service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Mayke\\AppData\\Local\\JetBrains\\Toolbox\\apps\\WebStorm\\ch-0\\233.14475.40\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Node.js.auth-gateway.js.executor": "Run",
+    "Node.js.users.js.executor": "Debug",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Merging feature/fotoUpload",
+    "last_opened_file_path": "C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/contest-service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Users\\Mayke\\AppData\\Local\\JetBrains\\Toolbox\\apps\\WebStorm\\ch-0\\233.14475.40\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service" />
@@ -83,7 +86,7 @@
       <workItem from="1711353470870" duration="3959000" />
       <workItem from="1711439984396" duration="11231000" />
       <workItem from="1711457306189" duration="59000" />
-      <workItem from="1711526670626" duration="176000" />
+      <workItem from="1711526670626" duration="4739000" />
     </task>
     <task id="LOCAL-00001" summary="merge">
       <option name="closed" value="true" />
