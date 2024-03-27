@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="merge">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/swagger.json" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/swagger.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contest-service/models/Submission.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/models/Submission.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contest-service/routes/contests.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/routes/contests.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/contest-gateway.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +86,7 @@
       <workItem from="1711353470870" duration="3959000" />
       <workItem from="1711439984396" duration="11231000" />
       <workItem from="1711457306189" duration="59000" />
-      <workItem from="1711526670626" duration="176000" />
+      <workItem from="1711526670626" duration="4739000" />
     </task>
     <task id="LOCAL-00001" summary="merge">
       <option name="closed" value="true" />

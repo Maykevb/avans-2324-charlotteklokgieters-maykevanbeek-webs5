@@ -15,7 +15,7 @@ const contestCB = new CircuitBreaker(callService, options);
 const jwt = require('jsonwebtoken');
 
 // Route voor het aanmaken van een nieuwe wedstrijd
-router.post('/create-contest', verifyToken, (req, res) => {
+router.post('/create-contest', verifyTokenTarget, (req, res) => {
     let contestData = req.body;
     if (!contestData || !contestData.place || !contestData.endTime) {
         return res.status(400).send('Ongeldige gegevens voor het aanmaken van een wedstrijd.');
@@ -28,8 +28,27 @@ router.post('/create-contest', verifyToken, (req, res) => {
             res.send(response);
         })
         .catch(error => {
-            console.error('Fout bij het registreren van gebruiker:', error);
-            res.status(500).send('Er is een fout opgetreden bij het registreren van de gebruiker.');
+            console.error('Fout bij het aanmaken van een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het aanmaken van de wedstrijd.');
+        });
+});
+
+// Route voor het aanmelden voor een wedstrijd als participant
+router.post('/register-for-contest', verifyTokenParticipant, (req, res) => {
+    let contestData = req.body;
+    if (!contestData || !contestData.contestId) {
+        return res.status(400).send('Ongeldige gegevens voor het aanmelden bij een wedstrijd.');
+    }
+
+    contestData.user = req.user.username;
+
+    contestCB.fire('post', contestService, '/contests/register', contestData, gatewayToken)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het aanmelden voor een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het aanmelden voor een wedstrijd.');
         });
 });
 
@@ -57,7 +76,7 @@ function callService(method, serviceAddress, resource, data) {
     });
 }
 
-function verifyToken(req, res, next) {
+function verifyTokenTarget(req, res, next) {
     const token = req.header('authorization').replace('Bearer ', '');
 
     if (!token) {
@@ -66,6 +85,23 @@ function verifyToken(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_TARGETOWNER);
+        req.user = decoded.user;
+        next();
+    } catch (error) {
+        console.log(error)
+        return res.status(401).send('Ongeldige JWT-token');
+    }
+}
+
+function verifyTokenParticipant(req, res, next) {
+    const token = req.header('authorization').replace('Bearer ', '');
+
+    if (!token) {
+        return res.status(401).send('Geen JWT-token verstrekt');
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_PARTICIPANT);
         req.user = decoded.user;
         next();
     } catch (error) {
