@@ -101,49 +101,10 @@
         "security": []
       }
     },
-    "/create-contest": {
-      "post": {
-        "summary": "Create a contest.",
-        "description": "Creating an contest without target.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "description": {
-                    "type": "string",
-                    "description": "A description of the contest."
-                  },
-                  "place": {
-                    "type": "string",
-                    "description": "The place of the contest."
-                  },
-                  "endTime": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "The endtime of the contest."
-                  }
-                },
-                "required": ["endTime", "place"]
-              }
-            }
-          }
-        },
-        "responses": {
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/login": {
       "post": {
         "summary": "Log in.",
-        "description": "Logging in with the given email and password.",
+        "description": "Logging in with your username and password.",
         "requestBody": {
           "required": true,
           "content": {
@@ -217,6 +178,89 @@
           }
         },
         "security": []
+      }
+    },
+    "/create-contest": {
+      "post": {
+        "summary": "Create a contest.",
+        "description": "Creating an contest (without target).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "A description of the contest."
+                  },
+                  "endTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The endtime of the contest."
+                  }
+                },
+                "required": ["endTime"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest created successfully. To add a target and place, use the /update-contest route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The contest has been created successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error creating contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while creating the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     }
   },
