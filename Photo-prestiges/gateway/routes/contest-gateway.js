@@ -43,8 +43,6 @@ router.post('/update-contest', verifyTokenTarget, (req, res) => {
 
     contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
         .then(response => {
-            res.contentType('image/png');
-            res.set('Content-Type', 'image/png');
             res.send(response);
         })
         .catch(error => {

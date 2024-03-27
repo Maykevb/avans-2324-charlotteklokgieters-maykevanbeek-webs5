@@ -284,6 +284,7 @@
                   },
                   "image": {
                     "type": "string",
+                    "format": "base64",
                     "description": "The target picture as base64 string."
                   }
                 },
@@ -296,10 +297,15 @@
           "200": {
             "description": "Contest updated successfully.",
             "content": {
-              "image/png": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The contest has been updated successfully."
+                    }
+                  }
                 }
               }
             }
