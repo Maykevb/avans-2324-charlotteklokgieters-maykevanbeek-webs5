@@ -183,7 +183,7 @@
     "/create-contest": {
       "post": {
         "summary": "Create a contest.",
-        "description": "Creating an contest (without target).",
+        "description": "Creating a contest (without target).",
         "requestBody": {
           "required": true,
           "content": {
@@ -233,6 +233,87 @@
                     "msg": {
                       "type": "string",
                       "description": "Something went wrong while creating the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/update-contest": {
+      "post": {
+        "summary": "Update an existing contest.",
+        "description": "Updating an existing contest (with target).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The id of the contest you'd like to update."
+                  },
+                  "place": {
+                    "type": "string",
+                    "description": "The place the target picture was taken."
+                  },
+                  "image": {
+                    "type": "string",
+                    "description": "The target picture as base64 string."
+                  }
+                },
+                "required": ["id", "place", "image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest updated successfully.",
+            "content": {
+              "image/png": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error updating contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while updating the contest."
                     }
                   }
                 }

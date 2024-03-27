@@ -5,14 +5,13 @@ const contestSchema = new mongoose.Schema({
     owner: {
         type: ObjectId,
         ref: 'User',
-        required: true,
+        required: true
     },
     description: {
-        type: String,
+        type: String
     },
     place: {
-        type: String,
-        required: true,
+        type: String
     },
     image: {
         type: String

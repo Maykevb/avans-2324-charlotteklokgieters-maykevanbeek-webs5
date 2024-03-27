@@ -17,7 +17,7 @@ const jwt = require('jsonwebtoken');
 // Route voor het aanmaken van een nieuwe wedstrijd
 router.post('/create-contest', verifyToken, (req, res) => {
     let contestData = req.body;
-    if (!contestData || !contestData.place || !contestData.endTime) {
+    if (!contestData || !contestData.endTime) {
         return res.status(400).send('Ongeldige gegevens voor het aanmaken van een wedstrijd.');
     }
 
@@ -28,8 +28,28 @@ router.post('/create-contest', verifyToken, (req, res) => {
             res.send(response);
         })
         .catch(error => {
-            console.error('Fout bij het registreren van gebruiker:', error);
-            res.status(500).send('Er is een fout opgetreden bij het registreren van de gebruiker.');
+            console.error('Fout bij het aanmaken van een contest:', error);
+            res.status(500).send('Er is een fout opgetreden bij het aanmaken van een contest.');
+        });
+});
+
+router.post('/update-contest', verifyToken, (req, res) => {
+    let contestData = req.body;
+    if (!contestData || !contestData.id || !contestData.place || !contestData.image) {
+        return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
+    }
+
+    contestData.user = req.user.username;
+
+    contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
+        .then(response => {
+            res.contentType('image/png');
+            res.set('Content-Type', 'image/png');
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het updaten van een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
         });
 });
 
