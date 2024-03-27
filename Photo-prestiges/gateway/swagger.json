@@ -103,8 +103,8 @@
     },
     "/create-contest": {
       "post": {
-        "summary": "Log in.",
-        "description": "Logging in with the given email and password.",
+        "summary": "Create a contest.",
+        "description": "Creating an contest without target.",
         "requestBody": {
           "required": true,
           "content": {
@@ -112,29 +112,21 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": {
-                    "type": "string",
-                    "description": "The email of the user."
-                  },
                   "description": {
                     "type": "string",
-                    "description": "The password of the user."
+                    "description": "A description of the contest."
                   },
                   "place": {
                     "type": "string",
-                    "description": "The password of the user."
+                    "description": "The place of the contest."
                   },
                   "endTime": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "The password of the user."
+                    "description": "The endtime of the contest."
                   }
                 },
-                "required": [
-                  "username",
-                  "endTime",
-                  "place"
-                ]
+                "required": ["endTime", "place"]
               }
             }
           }
