@@ -86,7 +86,44 @@ router.post('/create', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Contest succesvol aangemaakt' });
+        res.json({ msg: 'Contest succesvol aangemaakt', contestId: contest._id });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Serverfout');
+    }
+});
+
+router.post('/update', verifyToken, async (req, res) => {
+    try {
+        const { id, place, image } = req.body;
+        let username = req.body.user
+
+        let user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+        }
+
+        if (user.role !== 'targetOwner') {
+            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd te updaten'})
+        }
+
+        let contest = await Contest.findById( new ObjectId(id) )
+        contest.place = place
+        contest.image = image
+
+        await contest.save();
+
+        if (channel) {
+            const exchangeName = 'contest_exchange';
+            const routingKey = 'contest.updated';
+            const message = JSON.stringify(contest);
+            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
+            console.log('Contest updated message sent to RabbitMQ');
+        } else {
+            console.log('RabbitMQ channel is not available. Message not sent.');
+        }
+
+        res.json({ msg: 'Contest succesvol geupdate' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
@@ -135,49 +172,6 @@ router.post('/register', verifyToken, async (req, res) => {
         }
 
         res.json({ msg: 'Gebruiker succesvol aangemeld bij wedstrijd' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Serverfout');
-    }
-});
-
-router.post('/update', verifyToken, async (req, res) => {
-    try {
-        const { id, place, image } = req.body;
-        let username = req.body.user
-
-        let user = await User.findOne({ username });
-        if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
-        }
-
-        if (user.role !== 'targetOwner') {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd te updaten'})
-        }
-
-        let contest = await Contest.findById( new ObjectId(id) )
-        contest.place = place
-        contest.image = image
-
-        await contest.save();
-
-        if (channel) {
-            const exchangeName = 'update_contest_exchange';
-            const routingKey = 'contest.updated';
-            const message = JSON.stringify(contest);
-            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
-            console.log('Contest updated message sent to RabbitMQ');
-        } else {
-            console.log('RabbitMQ channel is not available. Message not sent.');
-        }
-
-        const voorbeeldBase64String = "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAKCAYAAACJxx+AAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAAZSURBVChTY/zPwABEuAETlMYJRhWAAAMDAJq9AhIp2UxgAAAAAElFTkSuQmCC"
-        res.contentType('image/png');
-        res.set('Content-Type', 'image/png');
-
-        res.send(Buffer.from(voorbeeldBase64String, 'base64'));
-
-        // res.json({ msg: 'Contest succesvol geupdate' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
