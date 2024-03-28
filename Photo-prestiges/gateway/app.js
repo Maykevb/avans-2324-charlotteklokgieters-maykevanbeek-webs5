@@ -21,6 +21,7 @@ app.post('/login', authRoute);
 app.post('/create-contest', contestRoute);
 app.post('/update-contest', contestRoute);
 app.post('/register-for-contest', contestRoute);
+app.post('/update-submission', contestRoute);
 
 app.get('/get-contests', readRoutes);
 

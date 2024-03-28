@@ -88,6 +88,37 @@ router.post('/register-for-contest', verifyTokenParticipant, (req, res) => {
         });
 });
 
+// router.post('/update-submission', verifyTokenTarget, upload.single('image'), (req, res) => {
+//     let submissionData = req.body;
+//     if (!submissionData || !submissionData.contestId || !submissionData.participantId || !req.file) {
+//         return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
+//     }
+//
+//     const imageFileName = `${Date.now()}-${req.file.originalname.replaceAll(' ', '_')}`; // Unieke bestandsnaam
+//     const imagePath = path.join(__dirname, '../uploads', imageFileName); // Bestandspad waar de afbeelding wordt opgeslagen
+//
+//     fs.writeFile(imagePath, req.file.buffer, (err) => {
+//         if (err) {
+//             console.error('Fout bij het opslaan van de afbeelding:', err);
+//             return res.status(500).send('Er is een fout opgetreden bij het opslaan van de afbeelding.');
+//         }
+//
+//         const imageUrl = `http://localhost:5000/uploads/${imageFileName}`;
+//
+//         contestData.user = req.user.username;
+//         contestData.image = imageUrl;
+//
+//         contestCB.fire('post', contestService, '/contests/updateSubmission', contestData, gatewayToken)
+//             .then(response => {
+//                 res.send(response);
+//             })
+//             .catch(error => {
+//                 console.error('Fout bij het updaten van een wedstrijd:', error);
+//                 res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
+//             });
+//     });
+// });
+
 function callService(method, serviceAddress, resource, data) {
     return new Promise((resolve, reject) => {
         let url = `${serviceAddress}${resource}`;
