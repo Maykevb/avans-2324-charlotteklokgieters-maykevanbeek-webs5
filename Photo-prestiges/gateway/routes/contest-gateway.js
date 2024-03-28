@@ -3,6 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const multer = require('multer');
+const upload = multer();
+
 const CircuitBreaker = require('opossum');
 const contestService = process.env.CONTESTSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
@@ -17,7 +20,7 @@ const jwt = require('jsonwebtoken');
 // Route voor het aanmaken van een nieuwe wedstrijd
 router.post('/create-contest', verifyTokenTarget, (req, res) => {
     let contestData = req.body;
-    if (!contestData || !contestData.place || !contestData.endTime) {
+    if (!contestData || !contestData.endTime) {
         return res.status(400).send('Ongeldige gegevens voor het aanmaken van een wedstrijd.');
     }
 
@@ -28,8 +31,29 @@ router.post('/create-contest', verifyTokenTarget, (req, res) => {
             res.send(response);
         })
         .catch(error => {
-            console.error('Fout bij het aanmaken van een wedstrijd:', error);
-            res.status(500).send('Er is een fout opgetreden bij het aanmaken van de wedstrijd.');
+            console.error('Fout bij het aanmaken van een contest:', error);
+            res.status(500).send('Er is een fout opgetreden bij het aanmaken van een contest.');
+        });
+});
+
+router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, res) => {
+    let contestData = req.body;
+    if (!contestData || !contestData.id || !contestData.place || !req.file) {
+        return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
+    }
+
+    const base64Image = Buffer.from(req.file.buffer, 'binary').toString('base64');
+
+    contestData.user = req.user.username;
+    contestData.image = base64Image;
+
+    contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het updaten van een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
         });
 });
 

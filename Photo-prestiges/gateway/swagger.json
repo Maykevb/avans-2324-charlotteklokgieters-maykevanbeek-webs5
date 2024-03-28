@@ -101,49 +101,10 @@
         "security": []
       }
     },
-    "/create-contest": {
-      "post": {
-        "summary": "Create a contest.",
-        "description": "Creating an contest without target.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "description": {
-                    "type": "string",
-                    "description": "A description of the contest."
-                  },
-                  "place": {
-                    "type": "string",
-                    "description": "The place of the contest."
-                  },
-                  "endTime": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "The endtime of the contest."
-                  }
-                },
-                "required": ["endTime", "place"]
-              }
-            }
-          }
-        },
-        "responses": {
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/login": {
       "post": {
         "summary": "Log in.",
-        "description": "Logging in with the given email and password.",
+        "description": "Logging in with your username and password.",
         "requestBody": {
           "required": true,
           "content": {
@@ -217,6 +178,259 @@
           }
         },
         "security": []
+      }
+    },
+    "/create-contest": {
+      "post": {
+        "summary": "Create a contest.",
+        "description": "Creating a contest (without target).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "A description of the contest."
+                  },
+                  "endTime": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The endtime of the contest."
+                  }
+                },
+                "required": ["endTime"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest created successfully. To add a target and place, use the /update-contest route.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The contest has been created successfully."
+                    },
+                    "contestId": {
+                      "type": "string",
+                      "description": "The id of the contest that has been created. Needed when updating said contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error creating contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while creating the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/update-contest": {
+      "post": {
+        "summary": "Update an existing contest.",
+        "description": "Updating an existing contest (with target).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The id of the contest you'd like to update."
+                  },
+                  "place": {
+                    "type": "string",
+                    "description": "The place the target picture was taken."
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "base64",
+                    "description": "The target picture as binary image data."
+                  }
+                },
+                "required": ["id", "place", "image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The contest has been updated successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contest data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while updating the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/register-for-contest": {
+      "post": {
+        "summary": "Register for a contest as a participant",
+        "description": "Here you can enter your submission for a contest.",
+        "tags": ["Contests"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contestId": {
+                    "type": "string",
+                    "description": "Id of the contest you want you register for."
+                  }
+                },
+                "required": ["contestId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully entered the contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "You successfully entered the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contest data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Something went wrong with the contest data."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
