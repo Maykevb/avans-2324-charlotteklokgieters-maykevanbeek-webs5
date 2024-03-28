@@ -65,7 +65,7 @@ router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, 
         return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
     }
 
-    const imageFileName = `${Date.now()}-${req.file.originalname}`; // Unieke bestandsnaam
+    const imageFileName = `${Date.now()}-${req.file.originalname.replaceAll(' ', '_')}`; // Unieke bestandsnaam
     const imagePath = path.join(__dirname, '../uploads', imageFileName); // Bestandspad waar de afbeelding wordt opgeslagen
 
     fs.writeFile(imagePath, req.file.buffer, (err) => {
