@@ -454,13 +454,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "contestId": {
+                  "submissionId": {
                     "type": "string",
-                    "description": "Id of the contest you want to update your submission for."
-                  },
-                  "participantId": {
-                    "type": "string",
-                    "description": "Id of the participant."
+                    "description": "Id of the submission you'd like to upload a picture to."
                   },
                   "image": {
                     "type": "string",
@@ -468,7 +464,7 @@
                     "description": "The target picture."
                   }
                 },
-                "required": ["contestId", "participantId", "image"]
+                "required": ["submissionId", "image"]
               }
             }
           }

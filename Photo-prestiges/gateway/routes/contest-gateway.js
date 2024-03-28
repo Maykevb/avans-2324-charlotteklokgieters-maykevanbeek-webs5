@@ -47,7 +47,7 @@ router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, 
     contestData.user = req.user.username;
     contestData.image = req.file;
 
-    contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
+    contestCB.fire('post', contestService, '/contests/updateContest', contestData, gatewayToken)
         .then(response => {
             res.contentType('multipart/form-data')
             res.send(response);
@@ -77,25 +77,25 @@ router.post('/register-for-contest', verifyTokenParticipant, (req, res) => {
         });
 });
 
-// router.post('/update-submission', verifyTokenTarget, upload.single('image'), (req, res) => {
-//     let contestData = req.body;
-//     if (!contestData || !contestData.id || !contestData.place || !req.file) {
-//         return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
-//     }
-//
-//     contestData.user = req.user.username;
-//     contestData.image = req.file;
-//
-//     contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
-//         .then(response => {
-//             res.contentType('multipart/form-data')
-//             res.send(response);
-//         })
-//         .catch(error => {
-//             console.error('Fout bij het updaten van een wedstrijd:', error);
-//             res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
-//         });
-// });
+router.post('/update-submission', verifyTokenParticipant, upload.single('image'), (req, res) => {
+    let submissionData = req.body;
+    if (!submissionData || !submissionData.submissionId || !req.file) {
+        return res.status(400).send('Ongeldige gegevens voor het updaten van een submission.');
+    }
+
+    submissionData.user = req.user.username;
+    submissionData.image = req.file;
+
+    contestCB.fire('post', contestService, '/contests/updateSubmission', submissionData, gatewayToken)
+        .then(response => {
+            res.contentType('multipart/form-data')
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het updaten van een submission:', error);
+            res.status(500).send('Er is een fout opgetreden bij het updaten van een submission.');
+        });
+});
 
 function callService(method, serviceAddress, resource, data) {
     return new Promise((resolve, reject) => {
