@@ -38,27 +38,6 @@ router.post('/create-contest', verifyTokenTarget, (req, res) => {
         });
 });
 
-// router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, res) => {
-//     let contestData = req.body;
-//     if (!contestData || !contestData.id || !contestData.place || !req.file) {
-//         return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
-//     }
-//
-//     const base64Image = Buffer.from(req.file.buffer, 'binary').toString('base64');
-//
-//     contestData.user = req.user.username;
-//     contestData.image = base64Image;
-//
-//     contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
-//         .then(response => {
-//             res.send(response);
-//         })
-//         .catch(error => {
-//             console.error('Fout bij het updaten van een wedstrijd:', error);
-//             res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
-//         });
-// });
-
 router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, res) => {
     let contestData = req.body;
     if (!contestData || !contestData.id || !contestData.place || !req.file) {
