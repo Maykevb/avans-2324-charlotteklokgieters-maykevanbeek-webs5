@@ -32,6 +32,7 @@ async function connectAndProcessContestMessages() {
                     console.log('Ontvangen wedstrijd:', contest);
 
                     const newContest = new Contest({
+                        _id: contest._id.toString(),
                         owner: contest.owner,
                         description: contest.description,
                         place: contest.place,
@@ -71,7 +72,7 @@ async function connectAndProcessUpdateMessages() {
                     const contestData = JSON.parse(message.content.toString());
                     console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
 
-                    const contestId = contestData.id;
+                    const contestId = contestData._id;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
@@ -102,7 +103,7 @@ async function connectAndProcessUpdateMessages() {
 
 async function connectAndProcessMessages() {
     await connectAndProcessContestMessages();
-    // await connectAndProcessUpdateMessages();
+    await connectAndProcessUpdateMessages();
 }
 
 connectAndProcessMessages();

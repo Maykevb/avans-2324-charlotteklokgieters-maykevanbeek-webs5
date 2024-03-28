@@ -10,6 +10,8 @@ const mongoose = require("mongoose");
 const gatewayToken = process.env.GATEWAY_TOKEN;
 let channel = null;
 const ObjectId = mongoose.Types.ObjectId;
+const fs = require('fs');
+const path = require('path');
 
 async function connectToRabbitMQ() {
     try {
@@ -32,9 +34,9 @@ async function connectToRabbitMQ() {
         const UpdateQueueName = 'update_contest_queue';
         const UpdateRoutingKey = 'contest.updated';
 
-        await channel.assertExchange(exchangeName, 'direct', { durable: true });
-        await channel.assertQueue(queueName, { durable: true });
-        await channel.bindQueue(queueName, exchangeName, routingKey);
+        await channel.assertExchange(UpdateExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(UpdateQueueName, { durable: true });
+        await channel.bindQueue(UpdateQueueName, UpdateExchangeName, UpdateRoutingKey);
 
         console.log('Verbonden met RabbitMQ queue 1');
 
@@ -98,6 +100,8 @@ router.post('/update', verifyToken, async (req, res) => {
         const { id, place, image } = req.body;
         let username = req.body.user
 
+        console.log(image)
+
         let user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
@@ -108,13 +112,23 @@ router.post('/update', verifyToken, async (req, res) => {
         }
 
         let contest = await Contest.findById( new ObjectId(id) )
+        if (!contest) {
+            return res.status(400).json({ msg: 'Wedstrijd bestaat niet' });
+        }
+
+        // contest.image
+        if (image && contest.image) {
+            const oldImagePath = path.join(__dirname, '../../gateway/uploads', path.basename(contest.image));
+            fs.unlinkSync(oldImagePath);
+        }
+
         contest.place = place
         contest.image = image
 
         await contest.save();
 
         if (channel) {
-            const exchangeName = 'contest_exchange';
+            const exchangeName = 'update_contest_exchange';
             const routingKey = 'contest.updated';
             const message = JSON.stringify(contest);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
