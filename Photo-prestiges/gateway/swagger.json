@@ -184,6 +184,7 @@
       "post": {
         "summary": "Create a contest.",
         "description": "Creating a contest (without target).",
+        "tags": ["contests"],
         "requestBody": {
           "required": true,
           "content": {
@@ -271,6 +272,7 @@
       "post": {
         "summary": "Update an existing contest.",
         "description": "Updating an existing contest (with target).",
+        "tags": ["contests"],
         "requestBody": {
           "required": true,
           "content": {
@@ -358,7 +360,7 @@
       "post": {
         "summary": "Register for a contest as a participant",
         "description": "Here you can enter your submission for a contest.",
-        "tags": ["Contests"],
+        "tags": ["contests"],
         "security": [
           {
             "bearerAuth": []

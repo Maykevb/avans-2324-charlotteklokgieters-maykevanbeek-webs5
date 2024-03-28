@@ -10,6 +10,8 @@ const mongoose = require("mongoose");
 const gatewayToken = process.env.GATEWAY_TOKEN;
 let channel = null;
 const ObjectId = mongoose.Types.ObjectId;
+const fs = require('fs');
+const path = require('path');
 
 async function connectToRabbitMQ() {
     try {
@@ -108,6 +110,13 @@ router.post('/update', verifyToken, async (req, res) => {
         }
 
         let contest = await Contest.findById( new ObjectId(id) )
+
+        // contest.image
+        if (image && contest.image) {
+            const oldImagePath = path.join(__dirname, '../../gateway/uploads', path.basename(contest.image));
+            fs.unlinkSync(oldImagePath);
+        }
+
         contest.place = place
         contest.image = image
 
