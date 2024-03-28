@@ -14,8 +14,6 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 app.use(cors())
 app.use(express.json());
 
-app.use('/uploads', express.static('uploads'));
-
 app.post('/register', registerRoute);
 app.post('/login', authRoute);
 app.post('/create-contest', contestRoute);
