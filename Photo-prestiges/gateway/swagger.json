@@ -269,7 +269,7 @@
       }
     },
     "/update-contest": {
-      "post": {
+      "put": {
         "summary": "Update an existing contest.",
         "description": "Updating an existing contest (with target).",
         "tags": ["contests"],
@@ -326,6 +326,85 @@
                     "msg": {
                       "type": "string",
                       "description": "Something went wrong while updating the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/delete-contest": {
+      "delete": {
+        "summary": "Delete an existing contest.",
+        "description": "Deleting an existing contest.",
+        "tags": ["contests"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contestId": {
+                    "type": "string",
+                    "description": "The id of the contest you'd like to delete."
+                  }
+                },
+                "required": ["contestId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The contest has been deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contest data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while deleting the contest."
                     }
                   }
                 }
@@ -436,7 +515,7 @@
       }
     },
     "/update-submission": {
-      "post": {
+      "put": {
         "summary": "Update your submission.",
         "description": "Here you can update your submission for a contest by uploading a picture.",
         "tags": [
@@ -519,6 +598,85 @@
             }
           }
         }
+      }
+    },
+    "/delete-submission": {
+      "delete": {
+        "summary": "Delete an existing submission.",
+        "description": "Deleting an existing submission.",
+        "tags": ["contests"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "submissionId": {
+                    "type": "string",
+                    "description": "The id of the submission you'd like to delete."
+                  }
+                },
+                "required": ["submissionId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The submission has been deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid submission data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while deleting the submission."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     }
   },

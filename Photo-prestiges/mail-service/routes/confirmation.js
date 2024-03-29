@@ -34,7 +34,7 @@ function verifyToken(req, res, next) {
         console.log('Unauthorized access detected.');
         return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
     } else {
-        console.log('Access granted');
+        console.log('Access granted.');
     }
 
     next();

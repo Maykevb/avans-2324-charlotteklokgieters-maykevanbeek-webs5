@@ -97,18 +97,25 @@ router.post('/create', verifyToken, async (req, res) => {
     }
 });
 
-router.post('/updateContest', verifyToken, upload.single('image'), async (req, res) => {
+router.put('/updateContest', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { id, place, image } = req.body;
         let username = req.body.user
 
+        let contest = await Contest.findById( new ObjectId(id) )
         let user = await User.findOne({ username });
+
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
         }
 
-        if (user.role !== 'targetOwner') {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd te updaten'})
+        if (!contest) {
+            return res.status(400).json({ msg: 'Wedstrijd bestaat niet' });
+        }
+
+        let owner = await User.findById(contest.owner)
+        if (user.role !== 'targetOwner' || user.username !== owner.username) {
+            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze wedstrijd te updaten'})
         }
 
         if (!image || !image.buffer) {
@@ -119,19 +126,13 @@ router.post('/updateContest', verifyToken, upload.single('image'), async (req, r
         const imageFileName = `${Date.now()}-${image.originalname.replaceAll(' ', '_')}`;
         const imagePath = path.join(__dirname, '../uploads', imageFileName);
 
-        let imageUrl = null;
+        let imageUrl = `http://localhost:7000/uploads/${imageFileName}`;
         fs.writeFile(imagePath, imageBuffer, (err) => {
             if (err) {
                 console.error('Error saving image:', err);
                 return res.status(500).send('Error saving image.');
             }
-            imageUrl = `http://localhost:7000/uploads/${imageFileName}`;
         });
-
-        let contest = await Contest.findById( new ObjectId(id) )
-        if (!contest) {
-            return res.status(400).json({ msg: 'Wedstrijd bestaat niet' });
-        }
 
         if (imageUrl && contest.image) {
             const oldImagePath = path.join(__dirname, '../uploads', path.basename(contest.image));
@@ -154,6 +155,52 @@ router.post('/updateContest', verifyToken, upload.single('image'), async (req, r
         }
 
         res.json({ msg: 'Contest succesvol geupdate' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Serverfout');
+    }
+});
+
+router.delete('/deleteContest', verifyToken, async (req, res) => {
+    try {
+        const { contestId } = req.body;
+        let username = req.body.user
+
+        const contest = await Contest.findById(new ObjectId(contestId));
+        let user = await User.findOne({ username })
+
+        if (!contest) {
+            return res.status(404).json({ msg: 'Wedstrijd niet gevonden' });
+        }
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+        }
+
+        let owner = await User.findById(contest.owner)
+        if (user.username !== owner.username) {
+            return res.status(401).json({ msg: 'Je hebt niet de juiste rechten om deze wedstrijd te verwijderen' });
+        }
+
+        if (contest.image) {
+            const oldImagePath = path.join(__dirname, '../uploads', path.basename(contest.image));
+            fs.unlinkSync(oldImagePath);
+        }
+
+        await Submission.deleteMany({ contest: contest });
+        await Contest.deleteOne({ _id: contestId });
+
+        if (channel) {
+            const exchangeName = 'contest_exchange';
+            const routingKey = 'contest.deleted';
+            const message = JSON.stringify(contest);
+            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
+            console.log('Contest deleted message sent to RabbitMQ');
+        } else {
+            console.log('RabbitMQ channel is not available. Message not sent');
+        }
+
+        res.json({ msg: 'Contest succesvol verwijderd' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
@@ -208,18 +255,25 @@ router.post('/register', verifyToken, async (req, res) => {
     }
 });
 
-router.post('/updateSubmission', verifyToken, upload.single('image'), async (req, res) => {
+router.put('/updateSubmission', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { submissionId, image } = req.body;
         let username = req.body.user
 
+        let submission = await Submission.findById( new ObjectId(submissionId) )
         let user = await User.findOne({ username });
+
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
         }
 
-        if (user.role !== 'participant') {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een submission te updaten'})
+        if (!submission) {
+            return res.status(404).json({ msg: 'Submission niet gevonden' });
+        }
+
+        let participant = await User.findById(submission.participant)
+        if (user.role !== 'participant' || user.username !== participant.username) {
+            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze submission te updaten'})
         }
 
         if (!image || !image.buffer) {
@@ -230,16 +284,13 @@ router.post('/updateSubmission', verifyToken, upload.single('image'), async (req
         const imageFileName = `${Date.now()}-${image.originalname.replaceAll(' ', '_')}`;
         const imagePath = path.join(__dirname, '../uploads', imageFileName);
 
-        let imageUrl = null;
+        let imageUrl = `http://localhost:7000/uploads/${imageFileName}`;
         fs.writeFile(imagePath, imageBuffer, (err) => {
             if (err) {
                 console.error('Error saving image:', err);
                 return res.status(500).send('Error saving image.');
             }
-            imageUrl = `http://localhost:7000/uploads/${imageFileName}`;
         });
-
-        let submission = await Submission.findById( new ObjectId(submissionId) )
 
         if (imageUrl && submission.image) {
             const oldImagePath = path.join(__dirname, '../uploads', path.basename(submission.image));
@@ -266,6 +317,51 @@ router.post('/updateSubmission', verifyToken, upload.single('image'), async (req
         res.status(500).send('Serverfout');
     }
 })
+
+router.delete('/deleteSubmission', verifyToken, async (req, res) => {
+    try {
+        const { submissionId } = req.body;
+        let username = req.body.user
+
+        let submission = await Submission.findById( new ObjectId(submissionId) )
+        let user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+        }
+
+        if (!submission) {
+            return res.status(404).json({ msg: 'Submission niet gevonden' });
+        }
+
+        let participant = await User.findById(submission.participant)
+        if (user.role !== 'participant' || user.username !== participant.username) {
+            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze submission te verwijderen'})
+        }
+
+        if (submission.image) {
+            const oldImagePath = path.join(__dirname, '../uploads', path.basename(submission.image));
+            fs.unlinkSync(oldImagePath);
+        }
+
+        await Submission.deleteOne({ _id: submissionId });
+
+        if (channel) {
+            const exchangeName = 'submission_exchange';
+            const routingKey = 'submission.deleted';
+            const message = JSON.stringify(submission);
+            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
+            console.log('Submission deleted message sent to RabbitMQ');
+        } else {
+            console.log('RabbitMQ channel is not available. Message not sent');
+        }
+
+        res.json({ msg: 'Submission succesvol verwijderd' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Serverfout');
+    }
+});
 
 // Middleware om te controleren of het verzoek via de gateway komt
 function verifyToken(req, res, next) {
