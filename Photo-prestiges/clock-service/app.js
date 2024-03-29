@@ -155,7 +155,7 @@ async function connectAndProcessMessages() {
 
 connectAndProcessMessages();
 checkExpiredContests();
-setInterval(checkExpiredContests, 1 * 60 * 1000);
+setInterval(checkExpiredContests, 5 * 60 * 1000);
 
 // Start de server
 const PORT = process.env.PORT || 9000;
