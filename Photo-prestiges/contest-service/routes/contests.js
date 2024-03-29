@@ -97,7 +97,7 @@ router.post('/create', verifyToken, async (req, res) => {
     }
 });
 
-router.post('/updateContest', verifyToken, upload.single('image'), async (req, res) => {
+router.put('/updateContest', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { id, place, image } = req.body;
         let username = req.body.user
@@ -254,7 +254,7 @@ router.post('/register', verifyToken, async (req, res) => {
     }
 });
 
-router.post('/updateSubmission', verifyToken, upload.single('image'), async (req, res) => {
+router.put('/updateSubmission', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { submissionId, image } = req.body;
         let username = req.body.user

@@ -269,7 +269,7 @@
       }
     },
     "/update-contest": {
-      "post": {
+      "put": {
         "summary": "Update an existing contest.",
         "description": "Updating an existing contest (with target).",
         "tags": ["contests"],
@@ -515,7 +515,7 @@
       }
     },
     "/update-submission": {
-      "post": {
+      "put": {
         "summary": "Update your submission.",
         "description": "Here you can update your submission for a contest by uploading a picture.",
         "tags": [
