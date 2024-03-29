@@ -187,6 +187,7 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
             fs.unlinkSync(oldImagePath);
         }
 
+        await Submission.deleteMany({ contest: contest });
         await Contest.deleteOne({ _id: contestId });
 
         if (channel) {
