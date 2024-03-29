@@ -18,9 +18,11 @@ app.use(express.json());
 app.post('/register', registerRoute);
 app.post('/login', authRoute);
 app.post('/create-contest', contestRoute);
-app.post('/update-contest', contestRoute);
+app.put('/update-contest', contestRoute);
+app.delete('/delete-contest', contestRoute);
 app.post('/register-for-contest', contestRoute);
-app.post('/update-submission', contestRoute);
+app.put('/update-submission', contestRoute);
+app.delete('/delete-submission', contestRoute);
 
 app.get('/get-contests', readRoutes);
 app.get('/get-time', clockRoutes);
