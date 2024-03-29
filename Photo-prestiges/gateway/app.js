@@ -5,6 +5,7 @@ const registerRoute = require('./routes/register-gateway');
 const authRoute = require('./routes/auth-gateway');
 const contestRoute = require('./routes/contest-gateway');
 const readRoutes = require('./routes/read-gateway');
+const clockRoutes = require('./routes/clock-gateway');
 const cors = require('cors');
 
 const swaggerUI = require('swagger-ui-express')
@@ -24,6 +25,7 @@ app.put('/update-submission', contestRoute);
 app.delete('/delete-submission', contestRoute);
 
 app.get('/get-contests', readRoutes);
+app.get('/get-time', clockRoutes);
 
 app.listen(port, () => {
     console.log('Server is up on port ' + port)
