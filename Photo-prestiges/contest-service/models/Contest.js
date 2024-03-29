@@ -20,7 +20,10 @@ const contestSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-
+    statusOpen: {
+        type: Boolean,
+        default: true
+    }
 });
 
 module.exports = mongoose.model('Contest', contestSchema);
