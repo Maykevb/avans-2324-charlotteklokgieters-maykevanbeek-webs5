@@ -6,7 +6,7 @@ const gatewayToken = process.env.GATEWAY_TOKEN;
 const Contest = require('../models/Contest');
 
 // Route voor het ophalen van een wedstrijden overzicht
-router.get('/get',  async (req, res) => {
+router.get('/get', verifyToken, async (req, res) => {
     try {
         const { contestId } = req.query;
 
