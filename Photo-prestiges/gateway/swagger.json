@@ -291,7 +291,7 @@
                   "image": {
                     "type": "string",
                     "format": "base64",
-                    "description": "The target picture as binary image data."
+                    "description": "The target picture."
                   }
                 },
                 "required": ["id", "place", "image"]
@@ -358,7 +358,7 @@
     },
     "/register-for-contest": {
       "post": {
-        "summary": "Register for a contest as a participant",
+        "summary": "Register for a contest as a participant.",
         "description": "Here you can enter your submission for a contest.",
         "tags": ["contests"],
         "security": [
@@ -375,7 +375,7 @@
                 "properties": {
                   "contestId": {
                     "type": "string",
-                    "description": "Id of the contest you want you register for."
+                    "description": "Id of the contest you want to register for."
                   }
                 },
                 "required": ["contestId"]
@@ -410,6 +410,92 @@
                     "error": {
                       "type": "string",
                       "description": "Something went wrong with the contest data."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-submission": {
+      "post": {
+        "summary": "Update your submission.",
+        "description": "Here you can update your submission for a contest by uploading a picture.",
+        "tags": [
+          "contests"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "submissionId": {
+                    "type": "string",
+                    "description": "Id of the submission you'd like to upload a picture to."
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "base64",
+                    "description": "The target picture."
+                  }
+                },
+                "required": ["submissionId", "image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated your submission for the contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "You successfully updated your submission for the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid submission data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Something went wrong with the submission data."
                     }
                   }
                 }

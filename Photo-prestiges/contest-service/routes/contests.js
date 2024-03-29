@@ -12,6 +12,8 @@ let channel = null;
 const ObjectId = mongoose.Types.ObjectId;
 const fs = require('fs');
 const path = require('path');
+const multer = require('multer');
+const upload = multer();
 
 async function connectToRabbitMQ() {
     try {
@@ -95,7 +97,7 @@ router.post('/create', verifyToken, async (req, res) => {
     }
 });
 
-router.post('/update', verifyToken, async (req, res) => {
+router.post('/updateContest', verifyToken, upload.single('image'), async (req, res) => {
     try {
         const { id, place, image } = req.body;
         let username = req.body.user
@@ -111,19 +113,35 @@ router.post('/update', verifyToken, async (req, res) => {
             return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd te updaten'})
         }
 
+        if (!image || !image.buffer) {
+            return res.status(400).json({ msg: 'Invalid image data' });
+        }
+
+        const imageBuffer = Buffer.from(image.buffer.data);
+        const imageFileName = `${Date.now()}-${image.originalname.replaceAll(' ', '_')}`;
+        const imagePath = path.join(__dirname, '../uploads', imageFileName);
+
+        let imageUrl = null;
+        fs.writeFile(imagePath, imageBuffer, (err) => {
+            if (err) {
+                console.error('Error saving image:', err);
+                return res.status(500).send('Error saving image.');
+            }
+            imageUrl = `http://localhost:7000/uploads/${imageFileName}`;
+        });
+
         let contest = await Contest.findById( new ObjectId(id) )
         if (!contest) {
             return res.status(400).json({ msg: 'Wedstrijd bestaat niet' });
         }
 
-        // contest.image
-        if (image && contest.image) {
-            const oldImagePath = path.join(__dirname, '../../gateway/uploads', path.basename(contest.image));
+        if (imageUrl && contest.image) {
+            const oldImagePath = path.join(__dirname, '../uploads', path.basename(contest.image));
             fs.unlinkSync(oldImagePath);
         }
 
         contest.place = place
-        contest.image = image
+        contest.image = imageUrl
 
         await contest.save();
 
@@ -185,12 +203,71 @@ router.post('/register', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Gebruiker succesvol aangemeld bij wedstrijd' });
+        res.json({ msg: 'Gebruiker succesvol aangemeld bij wedstrijd', submissionId: submission._id });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
     }
 });
+
+router.post('/updateSubmission', verifyToken, upload.single('image'), async (req, res) => {
+    try {
+        const { submissionId, image } = req.body;
+        let username = req.body.user
+
+        let user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+        }
+
+        if (user.role !== 'participant') {
+            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een submission te updaten'})
+        }
+
+        if (!image || !image.buffer) {
+            return res.status(400).json({ msg: 'Invalid image data' });
+        }
+
+        const imageBuffer = Buffer.from(image.buffer.data);
+        const imageFileName = `${Date.now()}-${image.originalname.replaceAll(' ', '_')}`;
+        const imagePath = path.join(__dirname, '../uploads', imageFileName);
+
+        let imageUrl = null;
+        fs.writeFile(imagePath, imageBuffer, (err) => {
+            if (err) {
+                console.error('Error saving image:', err);
+                return res.status(500).send('Error saving image.');
+            }
+            imageUrl = `http://localhost:7000/uploads/${imageFileName}`;
+        });
+
+        let submission = await Submission.findById( new ObjectId(submissionId) )
+
+        if (imageUrl && submission.image) {
+            const oldImagePath = path.join(__dirname, '../uploads', path.basename(submission.image));
+            fs.unlinkSync(oldImagePath);
+        }
+
+        submission.image = imageUrl
+
+        await submission.save();
+
+        if (channel) {
+            const exchangeName = 'submission_exchange';
+            const routingKey = 'submission.updated';
+            const message = JSON.stringify(submission);
+            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
+            console.log('Submission updated message sent to RabbitMQ');
+        } else {
+            console.log('RabbitMQ channel is not available. Message not sent');
+        }
+
+        res.json({ msg: 'Submission succesvol geupdate' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Serverfout');
+    }
+})
 
 // Middleware om te controleren of het verzoek via de gateway komt
 function verifyToken(req, res, next) {

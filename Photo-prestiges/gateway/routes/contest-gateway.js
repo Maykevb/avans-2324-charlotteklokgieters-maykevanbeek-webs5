@@ -44,29 +44,18 @@ router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, 
         return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
     }
 
-    const imageFileName = `${Date.now()}-${req.file.originalname.replaceAll(' ', '_')}`; // Unieke bestandsnaam
-    const imagePath = path.join(__dirname, '../uploads', imageFileName); // Bestandspad waar de afbeelding wordt opgeslagen
+    contestData.user = req.user.username;
+    contestData.image = req.file;
 
-    fs.writeFile(imagePath, req.file.buffer, (err) => {
-        if (err) {
-            console.error('Fout bij het opslaan van de afbeelding:', err);
-            return res.status(500).send('Er is een fout opgetreden bij het opslaan van de afbeelding.');
-        }
-
-        const imageUrl = `http://localhost:5000/uploads/${imageFileName}`;
-
-        contestData.user = req.user.username;
-        contestData.image = imageUrl;
-
-        contestCB.fire('post', contestService, '/contests/update', contestData, gatewayToken)
-            .then(response => {
-                res.send(response);
-            })
-            .catch(error => {
-                console.error('Fout bij het updaten van een wedstrijd:', error);
-                res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
-            });
-    });
+    contestCB.fire('post', contestService, '/contests/updateContest', contestData, gatewayToken)
+        .then(response => {
+            res.contentType('multipart/form-data')
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het updaten van een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het updaten van een wedstrijd.');
+        });
 });
 
 // Route voor het aanmelden voor een wedstrijd als participant
@@ -85,6 +74,26 @@ router.post('/register-for-contest', verifyTokenParticipant, (req, res) => {
         .catch(error => {
             console.error('Fout bij het aanmelden voor een wedstrijd:', error);
             res.status(500).send('Er is een fout opgetreden bij het aanmelden voor een wedstrijd.');
+        });
+});
+
+router.post('/update-submission', verifyTokenParticipant, upload.single('image'), (req, res) => {
+    let submissionData = req.body;
+    if (!submissionData || !submissionData.submissionId || !req.file) {
+        return res.status(400).send('Ongeldige gegevens voor het updaten van een submission.');
+    }
+
+    submissionData.user = req.user.username;
+    submissionData.image = req.file;
+
+    contestCB.fire('post', contestService, '/contests/updateSubmission', submissionData, gatewayToken)
+        .then(response => {
+            res.contentType('multipart/form-data')
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het updaten van een submission:', error);
+            res.status(500).send('Er is een fout opgetreden bij het updaten van een submission.');
         });
 });
 
