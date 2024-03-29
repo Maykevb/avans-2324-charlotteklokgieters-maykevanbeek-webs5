@@ -17,13 +17,6 @@ const contestCB = new CircuitBreaker(callService, options);
 router.get('/get-contests', verifyToken, (req, res) => {
     const { page = 1, limit = 10, statusOpen = true } = req.query;
 
-    const queryParams = {
-        page: page,
-        limit: limit,
-        statusOpen: statusOpen
-    };
-    console.log(queryParams)
-
     contestCB.fire('get', readService, `/contests/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
         .then(response => {
             res.send(response);
