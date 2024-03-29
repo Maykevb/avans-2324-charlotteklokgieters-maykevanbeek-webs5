@@ -122,11 +122,13 @@ function callService(method, serviceAddress, resource, data) {
 }
 
 function verifyTokenTarget(req, res, next) {
-    const token = req.header('authorization').replace('Bearer ', '');
+    const tokenHeader = req.header('authorization');
 
-    if (!token) {
+    if (!tokenHeader) {
         return res.status(401).send('Geen JWT-token verstrekt');
     }
+
+    const token = tokenHeader.replace('Bearer ', '');
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_TARGETOWNER);
@@ -139,11 +141,13 @@ function verifyTokenTarget(req, res, next) {
 }
 
 function verifyTokenParticipant(req, res, next) {
-    const token = req.header('authorization').replace('Bearer ', '');
+    const tokenHeader = req.header('authorization');
 
-    if (!token) {
+    if (!tokenHeader) {
         return res.status(401).send('Geen JWT-token verstrekt');
     }
+
+    const token = tokenHeader.replace('Bearer ', '');
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET_PARTICIPANT);

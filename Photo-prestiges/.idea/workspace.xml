@@ -7,7 +7,8 @@
     <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="merge">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contest-service/routes/contests.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/routes/contests.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/read-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/read-service/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/routes/read-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/read-gateway.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/routes/register-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/register-gateway.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

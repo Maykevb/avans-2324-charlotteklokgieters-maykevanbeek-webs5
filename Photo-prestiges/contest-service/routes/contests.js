@@ -102,8 +102,6 @@ router.post('/updateContest', verifyToken, upload.single('image'), async (req, r
         const { id, place, image } = req.body;
         let username = req.body.user
 
-        console.log(image)
-
         let user = await User.findOne({ username });
         if (!user) {
             return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
