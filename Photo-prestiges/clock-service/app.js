@@ -2,13 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 const amqp = require('amqplib');
 const Contest = require('./models/Contest');
+const clockRoutes = require('./routes/clock');
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use('/contests', clockRoutes);
 
 // MongoDB-verbinding
-mongoose.connect('mongodb://localhost:27017/read-service')
+mongoose.connect('mongodb://localhost:27017/clock-service')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
@@ -17,7 +19,7 @@ async function connectAndProcessContestMessages() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
-        const contestQueueName = 'contest_queue';
+        const contestQueueName = 'contest_clock_queue';
 
         await channel.assertExchange(contestExchangeName, 'direct', { durable: true });
         await channel.assertQueue(contestQueueName, { durable: true });
@@ -58,7 +60,7 @@ async function connectAndProcessUpdateMessages() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_contest_exchange';
-        const updateQueueName = 'update_contest_queue';
+        const updateQueueName = 'update_contest_clock_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -86,6 +88,14 @@ async function connectAndProcessUpdateMessages() {
                     }
 
                     await contest.save();
+
+                    const remainingTime = contest.endTime - Date();
+                    if (remainingTime > 0) {
+                        setTimeout(() => { closeContest(contestId) }, remainingTime);
+                    } else {
+                        await closeContest(contestId);
+                    }
+
                     console.log('Wedstrijd succesvol bijgewerkt:', contest);
                 } catch (error) {
                     console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
@@ -99,12 +109,53 @@ async function connectAndProcessUpdateMessages() {
     }
 }
 
+async function closeContest(contestId) {
+    try {
+        let contest = await Contest.findById(contestId);
+        if (!contest) {
+            return console.error(`Er bestaat geen wedstrijd met ID ${contestId}`);
+        }
+
+        contest.statusOpen = false;
+
+        await contest.save();
+
+        console.log(`Wedstrijd met ID ${contest._id} is gesloten omdat de eindtijd is verstreken.`);
+
+        const channel = await amqp.connect('amqp://localhost').then(connection => connection.createChannel());
+        const exchangeName = 'contest_status_exchange';
+        await channel.assertExchange(exchangeName, 'direct', { durable: true });
+        const message = {
+            contestId: contestId,
+            status: false
+        };
+        channel.publish(exchangeName, 'contest_status_changed', Buffer.from(JSON.stringify(message)));
+        console.log(`Bericht verzonden naar RabbitMQ over de gesloten wedstrijd met ID ${contest._id}`);
+    } catch (error) {
+        console.error(`Fout bij het sluiten van de wedstrijd met ID ${contestId}:`, error);
+    }
+}
+
+async function checkExpiredContests() {
+    try {
+        const expiredContests = await Contest.find({ endTime: { $lt: new Date() }, statusOpen: true });
+
+        for (const contest of expiredContests) {
+            await closeContest(contest._id);
+        }
+    } catch (error) {
+        console.error('Fout bij het controleren van verlopen wedstrijden:', error);
+    }
+}
+
 async function connectAndProcessMessages() {
     await connectAndProcessContestMessages();
     await connectAndProcessUpdateMessages();
 }
 
 connectAndProcessMessages();
+checkExpiredContests();
+setInterval(checkExpiredContests, 1 * 60 * 1000);
 
 // Start de server
 const PORT = process.env.PORT || 9000;

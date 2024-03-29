@@ -40,7 +40,7 @@ async function connectToRabbitMQ() {
         await channel.assertQueue(UpdateQueueName, { durable: true });
         await channel.bindQueue(UpdateQueueName, UpdateExchangeName, UpdateRoutingKey);
 
-        console.log('Verbonden met RabbitMQ queue 1');
+        console.log('Verbonden met RabbitMQ queue 2');
 
         // Queue 3 for submissions
         const SubmissionExchangeName = 'submission_exchange';
@@ -51,7 +51,7 @@ async function connectToRabbitMQ() {
         await channel.assertQueue(SubmissionQueueName, { durable: true });
         await channel.bindQueue(SubmissionQueueName, SubmissionExchangeName, SubmissionRoutingKey);
 
-        console.log('Verbonden met RabbitMQ queue 2');
+        console.log('Verbonden met RabbitMQ queue 3');
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error);
     }

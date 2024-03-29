@@ -4,11 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="merge">
+    <list default="true" id="ba932073-3d3a-419d-93ec-d9ec8a0e40e3" name="Changes" comment="pull">
+      <change afterPath="$PROJECT_DIR$/clock-service/routes/clock.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gateway/routes/clock-gateway.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clock-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/clock-service/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clock-service/models/Contest.js" beforeDir="false" afterPath="$PROJECT_DIR$/clock-service/models/Contest.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contest-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/contest-service/routes/contests.js" beforeDir="false" afterPath="$PROJECT_DIR$/contest-service/routes/contests.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/routes/read-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/read-gateway.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gateway/routes/register-gateway.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/routes/register-gateway.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gateway/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/gateway/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/read-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/read-service/app.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,30 +38,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Node.js.auth-gateway.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.users.js.executor&quot;: &quot;Debug&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Merging feature/fotoUpload&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/read-service&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Mayke\\AppData\\Local\\JetBrains\\Toolbox\\apps\\WebStorm\\ch-0\\233.14475.40\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Node.js.auth-gateway.js.executor": "Run",
+    "Node.js.users.js.executor": "Debug",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Merging feature/fotoUpload",
+    "last_opened_file_path": "C:/Repositories/avans-2324-charlotteklokgieters-maykevanbeek-webs5/Photo-prestiges/clock-service",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "C:\\Users\\Mayke\\AppData\\Local\\JetBrains\\Toolbox\\apps\\WebStorm\\ch-0\\233.14475.40\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\clock-service" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\read-service" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\read-service\models" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service" />
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\Models" />
-      <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\gateway" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Repositories\avans-2324-charlotteklokgieters-maykevanbeek-webs5\Photo-prestiges\contest-service\routes" />
@@ -95,7 +100,15 @@
       <option name="project" value="LOCAL" />
       <updated>1711359393069</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="pull">
+      <option name="closed" value="true" />
+      <created>1711708169993</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1711708169993</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -103,6 +116,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="merge" />
-    <option name="LAST_COMMIT_MESSAGE" value="merge" />
+    <MESSAGE value="pull" />
+    <option name="LAST_COMMIT_MESSAGE" value="pull" />
   </component>
 </project>

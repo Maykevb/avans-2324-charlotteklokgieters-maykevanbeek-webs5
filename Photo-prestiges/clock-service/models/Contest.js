@@ -19,6 +19,10 @@ const contestSchema = new mongoose.Schema({
     endTime: {
         type: Date,
         required: true
+    },
+    statusOpen: {
+        type: Boolean,
+        default: true
     }
 });
 

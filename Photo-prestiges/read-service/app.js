@@ -19,7 +19,7 @@ async function connectAndProcessContestMessages() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
-        const contestQueueName = 'contest_queue';
+        const contestQueueName = 'contest_read_queue';
 
         await channel.assertExchange(contestExchangeName, 'direct', { durable: true });
         await channel.assertQueue(contestQueueName, { durable: true });
@@ -60,7 +60,7 @@ async function connectAndProcessUpdateMessages() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_contest_exchange';
-        const updateQueueName = 'update_contest_queue';
+        const updateQueueName = 'update_contest_read_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -101,9 +101,55 @@ async function connectAndProcessUpdateMessages() {
     }
 }
 
+async function connectAndProcessStatusMessages() {
+    try {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        const exchangeName = 'contest_status_exchange';
+        const queueName = 'contest_status_read_queue';
+
+        await channel.assertExchange(exchangeName, 'direct', { durable: true });
+        await channel.assertQueue(queueName, { durable: true });
+        await channel.bindQueue(queueName, exchangeName, 'contest_status_changed');
+
+        channel.consume(queueName, async (message) => {
+            if (message) {
+                try {
+                    const content = JSON.parse(message.content.toString());
+                    console.log('Ontvangen bericht over de wedstrijdstatus:', content);
+
+                    const contestId = content.contestId;
+                    const contest = await Contest.findById(contestId);
+
+                    if (!contest) {
+                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        return;
+                    }
+
+                    if (content.status !== undefined && content.status !== null && content.status !== '') {
+                        contest.statusOpen = content.status;
+                    }
+                    console.log(contest)
+
+                    await contest.save();
+                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                } catch (error) {
+                    console.error('Fout bij het verwerken van het ontvangen bericht:', error);
+                }
+            }
+        }, { noAck: true });
+
+        console.log('Verbonden met RabbitMQ voor het verwerken van wedstrijdstatusberichten');
+    } catch (error) {
+        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van wedstrijdstatusberichten:', error);
+    }
+}
+
+
 async function connectAndProcessMessages() {
     await connectAndProcessContestMessages();
     await connectAndProcessUpdateMessages();
+    await connectAndProcessStatusMessages();
 }
 
 connectAndProcessMessages();
