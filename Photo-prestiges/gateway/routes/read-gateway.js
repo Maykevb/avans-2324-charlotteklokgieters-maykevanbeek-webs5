@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const CircuitBreaker = require('opossum');
-const contestService = process.env.READSERVICE;
+const readService = process.env.READSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const options = {
     timeout: 3000, // Als de functie langer dan 3 seconden duurt, wordt er een fout getriggerd
@@ -14,8 +14,17 @@ const options = {
 const contestCB = new CircuitBreaker(callService, options);
 
 // Route voor het ophalen van een wedstrijden overzicht
-router.get('/get-contests', (req, res) => {
-    contestCB.fire('get', contestService, '/contests/get')
+router.get('/get-contests', verifyToken, (req, res) => {
+    const { page = 1, limit = 10, statusOpen = true } = req.query;
+
+    const queryParams = {
+        page: page,
+        limit: limit,
+        statusOpen: statusOpen
+    };
+    console.log(queryParams)
+
+    contestCB.fire('get', readService, `/contests/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
         .then(response => {
             res.send(response);
         })
@@ -24,6 +33,14 @@ router.get('/get-contests', (req, res) => {
             res.status(500).send('Er is een fout opgetreden bij het ophalen van de wedstrijden.');
         });
 });
+
+function verifyToken(req, res) {
+    const token = req.header('authorization');
+
+    if (!token) {
+        return res.status(401).send('Geen JWT-token verstrekt');
+    }
+}
 
 function callService(method, serviceAddress, resource, data) {
     return new Promise((resolve, reject) => {
