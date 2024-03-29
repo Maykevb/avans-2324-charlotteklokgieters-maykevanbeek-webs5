@@ -19,8 +19,7 @@ const contestSchema = new mongoose.Schema({
     endTime: {
         type: Date,
         required: true
-    },
-
+    }
 });
 
 module.exports = mongoose.model('Contest', contestSchema);
