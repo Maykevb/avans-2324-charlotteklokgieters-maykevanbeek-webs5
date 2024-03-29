@@ -8,7 +8,17 @@ const Contest = require('../models/Contest');
 // Route voor het ophalen van een wedstrijden overzicht
 router.get('/get', verifyToken, async (req, res) => {
     try {
-        const contests = await Contest.find();
+        const { page = 1, limit = 10, statusOpen} = req.query;
+
+        const query = {};
+
+        if (statusOpen !== undefined) {
+            query.statusOpen = statusOpen === 'true';
+        }
+
+        const contests = await Contest.find(query)
+            .skip((page - 1) * limit)
+            .limit(limit);
 
         res.json(contests);
     } catch (error) {

@@ -17,7 +17,9 @@ const registerCB = new CircuitBreaker(callService, options);
 router.post('/register', (req, res) => {
     let userData = req.body;
     const validRoles = ['participant', 'targetOwner']
-    if (!userData || !userData.username || !userData.email || !userData.password || !userData.role || !validRoles.includes(userData.role)) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!userData || !userData.username || !userData.email || !userData.password || !userData.role || !validRoles.includes(userData.role) || !emailRegex.test(userData.email)) {
         return res.status(400).send('Ongeldige gegevens voor registratie.');
     }
 
