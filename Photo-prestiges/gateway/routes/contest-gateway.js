@@ -5,8 +5,6 @@ const router = express.Router();
 const axios = require('axios');
 const multer = require('multer');
 const upload = multer();
-const fs = require('fs');
-const path = require('path');
 
 const CircuitBreaker = require('opossum');
 const contestService = process.env.CONTESTSERVICE;
@@ -58,6 +56,24 @@ router.post('/update-contest', verifyTokenTarget, upload.single('image'), (req, 
         });
 });
 
+router.delete('/delete-contest', verifyTokenTarget, (req, res) => {
+    let contestData = req.body;
+    if (!contestData || !contestData.contestId ) {
+        return res.status(400).send('Ongeldige gegevens voor het updaten van een wedstrijd.');
+    }
+
+    contestData.user = req.user.username;
+
+    contestCB.fire('delete', contestService, '/contests/deleteContest', contestData, gatewayToken)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het verwijderen van een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het verwijderen van een wedstrijd.');
+        });
+});
+
 // Route voor het aanmelden voor een wedstrijd als participant
 router.post('/register-for-contest', verifyTokenParticipant, (req, res) => {
     let contestData = req.body;
@@ -94,6 +110,24 @@ router.post('/update-submission', verifyTokenParticipant, upload.single('image')
         .catch(error => {
             console.error('Fout bij het updaten van een submission:', error);
             res.status(500).send('Er is een fout opgetreden bij het updaten van een submission.');
+        });
+});
+
+router.delete('/delete-submission', verifyTokenParticipant, (req, res) => {
+    let submissionData = req.body;
+    if (!submissionData || !submissionData.submissionId) {
+        return res.status(400).send('Ongeldige gegevens voor het verwijderen van een submission.');
+    }
+
+    submissionData.user = req.user.username;
+
+    contestCB.fire('delete', contestService, '/contests/deleteSubmission', submissionData, gatewayToken)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het verwijderen van een submission:', error);
+            res.status(500).send('Er is een fout opgetreden bij het verwijderen van een submission.');
         });
 });
 
