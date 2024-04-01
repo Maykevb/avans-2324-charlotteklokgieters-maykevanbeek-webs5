@@ -470,9 +470,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "msg": {
                       "type": "string",
-                      "description": "You successfully entered the contest."
+                      "description": "You successfully entered the contest. To add a submission picture, use the /update-submission route."
+                    },
+                    "submissionId": {
+                      "type": "string",
+                      "description": "The id of the submission that has been created. Needed when updating said submission."
                     }
                   }
                 }
@@ -556,7 +560,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "message": {
+                    "msg": {
                       "type": "string",
                       "description": "You successfully updated your submission for the contest."
                     }
@@ -649,6 +653,89 @@
                     "msg": {
                       "type": "string",
                       "description": "Something went wrong while deleting the submission."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/vote-for-contest": {
+      "post": {
+        "summary": "Vote for a contest.",
+        "description": "Vote for a contest you're participating in.",
+        "tags": ["contests"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contestId": {
+                    "type": "string",
+                    "description": "Id of the contest you want to register for."
+                  },
+                  "thumbsUp": {
+                    "type": "boolean",
+                    "description": "Whether you'd like to give the contest thumbs up. If false, you'd give the target a thumbs down."
+                  }
+                },
+                "required": ["contestId", "thumbsUp"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contest voted for successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The contest has been voted for successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error voting for contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while voting for the contest."
                     }
                   }
                 }

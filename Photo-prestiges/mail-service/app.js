@@ -43,12 +43,12 @@ async function connectToRabbitMQ() {
                         password: hashedPassword,
                         role: user.role
                     });
-
                     await newUser.save();
 
                     console.log('Gebruiker succesvol opgeslagen in de database van mail-service');
 
-                    await sendConfirmationEmail(user.email, user.username, user.password);
+                    // TODO
+                    // await sendConfirmationEmail(user.email, user.username, user.password);
                 } catch (error) {
                     console.error('Fout bij het opslaan van de gebruiker:', error);
                 }

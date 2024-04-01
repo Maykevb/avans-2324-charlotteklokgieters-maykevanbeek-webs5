@@ -363,6 +363,55 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
     }
 });
 
+router.post('/vote', verifyToken, async (req, res) => {
+    try {
+        const { contestId, thumbsUp } = req.body;
+        let username = req.body.user
+
+        let user = await User.findOne({ username });
+        if (!user) {
+            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+        }
+
+        if(user.role !== 'participant') {
+            return res.status(401).json({ msg: 'Je hebt niet de juiste rechten om je in te schrijven voor een wedstrijd' });
+        }
+
+        let contest = await Contest.findById(contestId);
+        if(!contest) {
+            return res.status(400).json({ msg: 'Er bestaat geen wedstrijd met deze ID'})
+        }
+
+        const existingSubmission = await Submission.findOne({ contest: contestId, participant: user._id });
+        if (!existingSubmission) {
+            return res.status(400).json({ msg: 'Je doet momenteel niet mee aan deze wedstrijd' });
+        }
+
+        if (thumbsUp === "true") {
+            contest.thumbsUp += contest.thumbsUp
+        } else {
+            contest.thumbsDown += contest.thumbsDown
+        }
+
+        await contest.save();
+
+        if (channel) {
+            const exchangeName = 'contest_exchange';
+            const routingKey = 'contest.';
+            const message = JSON.stringify(contest);
+            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
+            console.log('Voted on contest message sent to RabbitMQ');
+        } else {
+            console.log('RabbitMQ channel is not available. Message not sent');
+        }
+
+        res.json({ msg: 'Succesvol voor wedstijd gestemd' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Serverfout');
+    }
+});
+
 // Middleware om te controleren of het verzoek via de gateway komt
 function verifyToken(req, res, next) {
     const token = req.header('Gateway');

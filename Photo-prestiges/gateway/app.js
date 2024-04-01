@@ -23,6 +23,7 @@ app.delete('/delete-contest', contestRoute);
 app.post('/register-for-contest', contestRoute);
 app.put('/update-submission', contestRoute);
 app.delete('/delete-submission', contestRoute);
+app.post('/vote-for-contest', contestRoute);
 
 app.get('/get-contests', readRoutes);
 app.get('/get-time', clockRoutes);

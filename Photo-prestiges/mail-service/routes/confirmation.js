@@ -12,7 +12,7 @@ const mailersend = new MailerSend({
 });
 
 // Route for registering a new user
-router.post('/registration', verifyToken, async (req, res) => {
+router.post('/registration', async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -26,25 +26,11 @@ router.post('/registration', verifyToken, async (req, res) => {
     }
 });
 
-// Middleware om te controleren of het verzoek via de gateway komt
-function verifyToken(req, res, next) {
-    const token = req.header('Gateway');
-
-    if (!token || token !== gatewayToken) {
-        console.log('Unauthorized access detected.');
-        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
-    } else {
-        console.log('Access granted.');
-    }
-
-    next();
-}
-
 // Function to send registration confirmation email
 async function sendRegistrationEmail(email, username, password) {
     try {
         const recipients = [new Recipient(email, username)];
-        const sentFrom = new Sender("MS_7c7Kz8@trial-k68zxl2e965lj905.mlsender.net", "Mayke en Charlotte");
+        const sentFrom = new Sender("MS_BG0VX6@trial-3zxk54vnw5xljy6v.mlsender.net", "Mayke en Charlotte");
 
         const emailParams = new EmailParams()
             .setFrom(sentFrom)

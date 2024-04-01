@@ -131,6 +131,24 @@ router.delete('/delete-submission', verifyTokenParticipant, (req, res) => {
         });
 });
 
+router.post('/vote-for-contest', verifyTokenParticipant, (req, res) => {
+    let contestData = req.body;
+    if (!contestData || !contestData.contestId) {
+        return res.status(400).send('Ongeldige gegevens voor het stemmen voor een wedstrijd.');
+    }
+
+    contestData.user = req.user.username;
+
+    contestCB.fire('post', contestService, '/contests/vote', contestData, gatewayToken)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het stemmen voor een wedstrijd:', error);
+            res.status(500).send('Er is een fout opgetreden bij het stemmen voor een wedstrijd.');
+        });
+});
+
 function callService(method, serviceAddress, resource, data) {
     return new Promise((resolve, reject) => {
         let url = `${serviceAddress}${resource}`;

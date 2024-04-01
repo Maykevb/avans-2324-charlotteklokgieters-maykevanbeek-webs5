@@ -23,6 +23,14 @@ const contestSchema = new mongoose.Schema({
     statusOpen: {
         type: Boolean,
         default: true
+    },
+    thumbsUp: {
+        type: Number,
+        default: 0
+    },
+    thumbsDown: {
+        type: Number,
+        default: 0
     }
 });
 
