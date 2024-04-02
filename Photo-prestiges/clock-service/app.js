@@ -14,12 +14,12 @@ mongoose.connect('mongodb://localhost:27017/clock-service')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-async function connectAndProcessContestMessages() {
+async function connectAndCreateContests() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
-        const contestQueueName = 'contest_clock_queue';
+        const contestQueueName = 'contest_clock_created_queue';
 
         await channel.assertExchange(contestExchangeName, 'direct', { durable: true });
         await channel.assertQueue(contestQueueName, { durable: true });
@@ -109,6 +109,90 @@ async function connectAndProcessUpdateMessages() {
     }
 }
 
+async function connectAndDeleteContests() {
+    try {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        const updateExchangeName = 'contest_delete_exchange';
+        const updateQueueName = 'clock_delete_contest_queue';
+
+        await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(updateQueueName, { durable: true });
+        await channel.bindQueue(updateQueueName, updateExchangeName, 'contest.deleted');
+
+        channel.consume(updateQueueName, async (message) => {
+            if (message) {
+                try {
+                    const contestData = JSON.parse(message.content.toString());
+                    console.log('Ontvangen verwijderde wedstrijd:', contestData);
+
+                    const contestId = contestData._id;
+                    const contest = await Contest.findById(contestId);
+
+                    if (!contest) {
+                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        return;
+                    }
+
+                    await Contest.deleteOne({ _id: contestId });
+                    console.log('Wedstrijd succesvol verwijderd:', contest);
+                } catch (error) {
+                    console.error('Fout bij het verwijderen van het bijgewerkte bericht:', error);
+                }
+            }
+        }, { noAck: true });
+
+        console.log('Verbonden met RabbitMQ voor het verwerken van contest.deleted berichten');
+    } catch (error) {
+        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.deleted berichten:', error);
+    }
+}
+
+async function connectAndProcessContestVotingUpdate() {
+    try {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        const updateExchangeName = 'contest_voting_exchange';
+        const updateQueueName = 'clock_contest_votes_queue';
+
+        await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(updateQueueName, { durable: true });
+        await channel.bindQueue(updateQueueName, updateExchangeName, 'contest.votesUpdated');
+
+        channel.consume(updateQueueName, async (message) => {
+            if (message) {
+                try {
+                    const contestData = JSON.parse(message.content.toString());
+                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+
+                    const contestId = contestData._id;
+                    const contest = await Contest.findById(contestId);
+
+                    if (!contest) {
+                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        return;
+                    }
+
+                    if (contestData.thumbsUp !== undefined && contestData.thumbsUp) {
+                        contest.thumbsUp += contest.thumbsUp
+                    } else if (contestData.thumbsUp !== undefined) {
+                        contest.thumbsDown += contest.thumbsDown
+                    }
+
+                    await contest.save();
+                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                } catch (error) {
+                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                }
+            }
+        }, { noAck: true });
+
+        console.log('Verbonden met RabbitMQ voor het verwerken van contest.votesUpdated berichten');
+    } catch (error) {
+        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.votesUpdated berichten:', error);
+    }
+}
+
 async function closeContest(contestId) {
     try {
         let contest = await Contest.findById(contestId);
@@ -117,7 +201,6 @@ async function closeContest(contestId) {
         }
 
         contest.statusOpen = false;
-
         await contest.save();
 
         console.log(`Wedstrijd met ID ${contest._id} is gesloten omdat de eindtijd is verstreken.`);
@@ -149,12 +232,14 @@ async function checkExpiredContests() {
 }
 
 async function connectAndProcessMessages() {
-    await connectAndProcessContestMessages();
+    await connectAndCreateContests();
     await connectAndProcessUpdateMessages();
+    await connectAndDeleteContests();
+    await connectAndProcessContestVotingUpdate();
 }
 
-connectAndProcessMessages();
-checkExpiredContests();
+await connectAndProcessMessages();
+await checkExpiredContests();
 setInterval(checkExpiredContests, 5 * 60 * 1000);
 
 // Start de server

@@ -14,12 +14,12 @@ mongoose.connect('mongodb://localhost:27017/read-service')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-async function connectAndProcessContestMessages() {
+async function connectAndProcessCreateContest() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
-        const contestQueueName = 'contest_read_queue';
+        const contestQueueName = 'read_contest_created_queue';
 
         await channel.assertExchange(contestExchangeName, 'direct', { durable: true });
         await channel.assertQueue(contestQueueName, { durable: true });
@@ -55,12 +55,12 @@ async function connectAndProcessContestMessages() {
     }
 }
 
-async function connectAndProcessUpdateMessages() {
+async function connectAndProcessUpdateContest() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_contest_exchange';
-        const updateQueueName = 'update_contest_read_queue';
+        const updateQueueName = 'read_update_contest_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -101,12 +101,12 @@ async function connectAndProcessUpdateMessages() {
     }
 }
 
-async function connectAndProcessStatusMessages() {
+async function connectAndProcessContestStatusUpdate() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const exchangeName = 'contest_status_exchange';
-        const queueName = 'contest_status_read_queue';
+        const queueName = 'read_contest_status_update_queue';
 
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
@@ -129,7 +129,6 @@ async function connectAndProcessStatusMessages() {
                     if (content.status !== undefined && content.status !== null && content.status !== '') {
                         contest.statusOpen = content.status;
                     }
-                    console.log(contest)
 
                     await contest.save();
                     console.log('Wedstrijd succesvol bijgewerkt:', contest);
@@ -145,14 +144,99 @@ async function connectAndProcessStatusMessages() {
     }
 }
 
+async function connectAndDeleteContests() {
+    try {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        const updateExchangeName = 'contest_delete_exchange';
+        const updateQueueName = 'read_delete_contest_queue';
 
-async function connectAndProcessMessages() {
-    await connectAndProcessContestMessages();
-    await connectAndProcessUpdateMessages();
-    await connectAndProcessStatusMessages();
+        await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(updateQueueName, { durable: true });
+        await channel.bindQueue(updateQueueName, updateExchangeName, 'contest.deleted');
+
+        channel.consume(updateQueueName, async (message) => {
+            if (message) {
+                try {
+                    const contestData = JSON.parse(message.content.toString());
+                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+
+                    const contestId = contestData._id;
+                    const contest = await Contest.findById(contestId);
+
+                    if (!contest) {
+                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        return;
+                    }
+
+                    await Contest.deleteOne({ _id: contestId });
+                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                } catch (error) {
+                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                }
+            }
+        }, { noAck: true });
+
+        console.log('Verbonden met RabbitMQ voor het verwerken van contest.deleted berichten');
+    } catch (error) {
+        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.deleted berichten:', error);
+    }
 }
 
-connectAndProcessMessages();
+async function connectAndProcessContestVotingUpdate() {
+    try {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        const updateExchangeName = 'contest_voting_exchange';
+        const updateQueueName = 'read_contest_votes_queue';
+
+        await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(updateQueueName, { durable: true });
+        await channel.bindQueue(updateQueueName, updateExchangeName, 'contest.votesUpdated');
+
+        channel.consume(updateQueueName, async (message) => {
+            if (message) {
+                try {
+                    const contestData = JSON.parse(message.content.toString());
+                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+
+                    const contestId = contestData._id;
+                    const contest = await Contest.findById(contestId);
+
+                    if (!contest) {
+                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        return;
+                    }
+
+                    if (contestData.thumbsUp !== undefined && contestData.thumbsUp) {
+                        contest.thumbsUp += contest.thumbsUp
+                    } else if (contestData.thumbsUp !== undefined) {
+                        contest.thumbsDown += contest.thumbsDown
+                    }
+
+                    await contest.save();
+                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                } catch (error) {
+                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                }
+            }
+        }, { noAck: true });
+
+        console.log('Verbonden met RabbitMQ voor het verwerken van contest.votesUpdated berichten');
+    } catch (error) {
+        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.votesUpdated berichten:', error);
+    }
+}
+
+async function connectAndProcessMessages() {
+    await connectAndProcessCreateContest();
+    await connectAndProcessUpdateContest();
+    await connectAndProcessContestStatusUpdate();
+    await connectAndDeleteContests();
+    await connectAndProcessContestVotingUpdate();
+}
+
+await connectAndProcessMessages();
 
 // Start de server
 const PORT = process.env.PORT || 8000;

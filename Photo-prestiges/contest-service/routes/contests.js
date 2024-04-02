@@ -22,7 +22,7 @@ async function connectToRabbitMQ() {
 
         // Queue 1 for contests
         const exchangeName = 'contest_exchange';
-        const queueName = 'contest_queue';
+        const queueName = 'contest_created_queue';
         const routingKey = 'contest.created';
 
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
@@ -44,7 +44,7 @@ async function connectToRabbitMQ() {
 
         // Queue 3 for submissions
         const SubmissionExchangeName = 'submission_exchange';
-        const SubmissionQueueName = 'submission_queue';
+        const SubmissionQueueName = 'submission_created_queue';
         const SubmissionRoutingKey = 'submission.created';
 
         await channel.assertExchange(SubmissionExchangeName, 'direct', { durable: true });
@@ -52,6 +52,50 @@ async function connectToRabbitMQ() {
         await channel.bindQueue(SubmissionQueueName, SubmissionExchangeName, SubmissionRoutingKey);
 
         console.log('Verbonden met RabbitMQ queue 3');
+
+        // Queue 4 for update submission
+        const SubmissionUpdateExchangeName = 'update_submission_exchange';
+        const SubmissionUpdateQueueName = 'update_submission_queue';
+        const SubmissionUpdateRoutingKey = 'submission.updated';
+
+        await channel.assertExchange(SubmissionUpdateExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(SubmissionUpdateQueueName, { durable: true });
+        await channel.bindQueue(SubmissionUpdateQueueName, SubmissionUpdateExchangeName, SubmissionUpdateRoutingKey);
+
+        console.log('Verbonden met RabbitMQ queue 4');
+
+        // Queue 5 for delete contest
+        const ContestDeleteExchangeName = 'contest_delete_exchange';
+        const ContestDeleteQueueName = 'contest_delete_queue';
+        const ContestDeleteRoutingKey = 'contest.deleted';
+
+        await channel.assertExchange(ContestDeleteExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(ContestDeleteQueueName, { durable: true });
+        await channel.bindQueue(ContestDeleteQueueName, ContestDeleteExchangeName, ContestDeleteRoutingKey);
+
+        console.log('Verbonden met RabbitMQ queue 5');
+
+        // Queue 6 for delete submission
+        const SubmissionDeleteExchangeName = 'submission_deleted_exchange';
+        const SubmissionDeleteQueueName = 'submission_deleted_queue';
+        const SubmissionDeleteRoutingKey = 'submission.deleted';
+
+        await channel.assertExchange(SubmissionDeleteExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(SubmissionDeleteQueueName, { durable: true });
+        await channel.bindQueue(SubmissionDeleteQueueName, SubmissionDeleteExchangeName, SubmissionDeleteRoutingKey);
+
+        console.log('Verbonden met RabbitMQ queue 6');
+
+        // Queue 7 for update contest
+        const ContestVoteExchangeName = 'contest_voting_exchange';
+        const ContestVoteQueueName = 'update_contest_votes_queue';
+        const ContestVoteRoutingKey = 'contest.votesUpdated';
+
+        await channel.assertExchange(ContestVoteExchangeName, 'direct', { durable: true });
+        await channel.assertQueue(ContestVoteQueueName, { durable: true });
+        await channel.bindQueue(ContestVoteQueueName, ContestVoteExchangeName, ContestVoteRoutingKey);
+
+        console.log('Verbonden met RabbitMQ queue 7');
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error);
     }
@@ -154,7 +198,7 @@ router.put('/updateContest', verifyToken, upload.single('image'), async (req, re
             console.log('RabbitMQ channel is not available. Message not sent.');
         }
 
-        res.json({ msg: 'Contest succesvol geupdate' });
+        res.json({ msg: 'Contest succesvol geüpdate' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
@@ -191,7 +235,7 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
         await Contest.deleteOne({ _id: contestId });
 
         if (channel) {
-            const exchangeName = 'contest_exchange';
+            const exchangeName = 'contest_delete_exchange';
             const routingKey = 'contest.deleted';
             const message = JSON.stringify(contest);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
@@ -302,7 +346,7 @@ router.put('/updateSubmission', verifyToken, upload.single('image'), async (req,
         await submission.save();
 
         if (channel) {
-            const exchangeName = 'submission_exchange';
+            const exchangeName = 'update_submission_exchange';
             const routingKey = 'submission.updated';
             const message = JSON.stringify(submission);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
@@ -311,7 +355,7 @@ router.put('/updateSubmission', verifyToken, upload.single('image'), async (req,
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Submission succesvol geupdate' });
+        res.json({ msg: 'Submission succesvol geüpdate' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
@@ -347,7 +391,7 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
         await Submission.deleteOne({ _id: submissionId });
 
         if (channel) {
-            const exchangeName = 'submission_exchange';
+            const exchangeName = 'submission_deleted_exchange';
             const routingKey = 'submission.deleted';
             const message = JSON.stringify(submission);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
@@ -396,8 +440,8 @@ router.post('/vote', verifyToken, async (req, res) => {
         await contest.save();
 
         if (channel) {
-            const exchangeName = 'contest_exchange';
-            const routingKey = 'contest.updated';
+            const exchangeName = 'contest_voting_exchange';
+            const routingKey = 'contest.votesUpdated';
             const message = JSON.stringify(contest);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
             console.log('Voted on contest message sent to RabbitMQ');

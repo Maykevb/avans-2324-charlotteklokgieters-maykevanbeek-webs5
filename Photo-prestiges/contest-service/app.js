@@ -20,12 +20,12 @@ mongoose.connect('mongodb://localhost:27017/contest-service')
     .catch(err => console.log(err));
 
 // RabbitMQ-verbinding
-async function connectToRabbitMQ() {
+async function connectToRabbitMQUserCreate() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const exchangeName = 'user_exchange';
-        const queueName = 'contest_service_queue';
+        const queueName = 'contest_user_created_queue';
 
         // Verbind de queue met de exchange en routing key
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
@@ -61,12 +61,12 @@ async function connectToRabbitMQ() {
     }
 }
 
-async function connectAndProcessStatusMessages() {
+async function connectAndUpdateStatusContest() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const exchangeName = 'contest_status_exchange';
-        const queueName = 'contest_status_contest_queue';
+        const queueName = 'contest_service_status_update_queue';
 
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
@@ -89,7 +89,6 @@ async function connectAndProcessStatusMessages() {
                     if (content.status !== undefined && content.status !== null && content.status !== '') {
                         contest.statusOpen = content.status;
                     }
-                    console.log(contest)
 
                     await contest.save();
                     console.log('Wedstrijd succesvol bijgewerkt:', contest);
@@ -139,9 +138,13 @@ async function connectSubmissionScoreUpdate() {
     }
 }
 
-connectToRabbitMQ();
-connectAndProcessStatusMessages();
-connectSubmissionScoreUpdate();
+async function connectAndProcessMessages() {
+    await connectToRabbitMQUserCreate();
+    await connectAndUpdateStatusContest();
+    await connectSubmissionScoreUpdate();
+}
+
+await connectAndProcessMessages();
 
 // Start de server
 const PORT = process.env.PORT || 7000;

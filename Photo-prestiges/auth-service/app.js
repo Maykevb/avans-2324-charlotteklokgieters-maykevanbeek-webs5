@@ -16,12 +16,12 @@ mongoose.connect('mongodb://localhost:27017/auth-service', {
     .catch(err => console.log(err));
 
 // RabbitMQ-verbinding
-async function connectToRabbitMQ() {
+async function connectToRabbitMQUsersCreate() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const exchangeName = 'user_exchange';
-        const queueName = 'auth_service_queue';
+        const queueName = 'auth_user_created_queue';
 
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
@@ -42,8 +42,8 @@ async function connectToRabbitMQ() {
                         password: hashedPassword,
                         role: user.role
                     });
-                    await newUser.save();
 
+                    await newUser.save();
                     console.log('Gebruiker succesvol opgeslagen in de database van auth-service');
                 } catch (error) {
                     console.error('Fout bij het opslaan van de gebruiker:', error);
@@ -57,7 +57,11 @@ async function connectToRabbitMQ() {
     }
 }
 
-connectToRabbitMQ();
+async function connectAndProcessMessages() {
+    await connectToRabbitMQUsersCreate();
+}
+
+await connectAndProcessMessages();
 
 // Het opstarten van de server
 const PORT = process.env.PORT || 3000;

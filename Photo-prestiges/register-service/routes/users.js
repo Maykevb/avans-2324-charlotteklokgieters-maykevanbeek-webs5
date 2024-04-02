@@ -14,7 +14,7 @@ async function connectToRabbitMQ() {
         channel = await connection.createChannel();
 
         const exchangeName = 'user_exchange';
-        const queueName = 'user_queue';
+        const queueName = 'user_created_queue';
         const routingKey = 'user.created';
 
         await channel.assertExchange(exchangeName, 'direct', { durable: true });

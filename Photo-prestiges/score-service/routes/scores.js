@@ -16,40 +16,7 @@ async function connectToRabbitMQ() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         channel = await connection.createChannel();
-//
-//         // Queue 1 for contests
-//         const exchangeName = 'contest_exchange';
-//         const queueName = 'contest_queue';
-//         const routingKey = 'contest.created';
-//
-//         await channel.assertExchange(exchangeName, 'direct', { durable: true });
-//         await channel.assertQueue(queueName, { durable: true });
-//         await channel.bindQueue(queueName, exchangeName, routingKey);
-//
-//         console.log('Verbonden met RabbitMQ queue 1');
-//
-//         // Queue 2 for update contest
-//         const UpdateExchangeName = 'update_contest_exchange';
-//         const UpdateQueueName = 'update_contest_queue';
-//         const UpdateRoutingKey = 'contest.updated';
-//
-//         await channel.assertExchange(UpdateExchangeName, 'direct', { durable: true });
-//         await channel.assertQueue(UpdateQueueName, { durable: true });
-//         await channel.bindQueue(UpdateQueueName, UpdateExchangeName, UpdateRoutingKey);
-//
-//         console.log('Verbonden met RabbitMQ queue 2');
-//
-//         // Queue 3 for submissions
-//         const SubmissionExchangeName = 'submission_exchange';
-//         const SubmissionQueueName = 'submission_queue';
-//         const SubmissionRoutingKey = 'submission.created';
-//
-//         await channel.assertExchange(SubmissionExchangeName, 'direct', { durable: true });
-//         await channel.assertQueue(SubmissionQueueName, { durable: true });
-//         await channel.bindQueue(SubmissionQueueName, SubmissionExchangeName, SubmissionRoutingKey);
-//
-//         console.log('Verbonden met RabbitMQ queue 3');
-//
+
         // Queue for update submissions
         const SubmissionUpdateExchangeName = 'submission_score_exchange';
         const SubmissionUpdateQueueName = 'submission_score_update_queue';
@@ -59,7 +26,7 @@ async function connectToRabbitMQ() {
         await channel.assertQueue(SubmissionUpdateQueueName, { durable: true });
         await channel.bindQueue(SubmissionUpdateQueueName, SubmissionUpdateExchangeName, SubmissionUpdateRoutingKey);
 
-        console.log('Verbonden met RabbitMQ queue 3');
+        console.log('Verbonden met RabbitMQ queue');
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error);
     }
@@ -138,6 +105,7 @@ router.post('/update-score', async (req, res) => {
         }
 
         const roundedPercentageMatch = parseFloat(percentageMatch.toFixed(2));
+        // TODO
         // console.log(`Het percentage overeenkomende tags tussen scores[0] en scores[1] is ${roundedPercentageMatch}%.`);
         submission.score = roundedPercentageMatch
         await submission.save();
