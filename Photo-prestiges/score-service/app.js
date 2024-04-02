@@ -357,7 +357,7 @@ async function connectAndProcessContestVotingUpdate() {
 async function updateSubmissionScore(submissionId) {
     try {
         // Make a POST request to the score service endpoint
-        await axios.post('http://localhost:10000/scores/update-score', { submissionId });
+        await axios.put('http://localhost:10000/scores/update-score', { submissionId });
         console.log('Score updated');
     } catch (error) {
         console.error('Error updating score:', error);

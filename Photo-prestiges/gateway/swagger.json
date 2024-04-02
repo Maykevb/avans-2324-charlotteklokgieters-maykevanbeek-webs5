@@ -684,7 +684,7 @@
       }
     },
     "/vote-for-contest": {
-      "post": {
+      "put": {
         "summary": "Vote for a contest.",
         "description": "Vote for a contest you're participating in.",
         "tags": ["contests"],
@@ -736,6 +736,207 @@
                     "msg": {
                       "type": "string",
                       "description": "Something went wrong while voting for the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/get-contests": {
+      "get": {
+        "summary": "Get all contests.",
+        "description": "Get a list of all running contests.",
+        "tags": ["contests"],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of contests per page.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "name": "statusOpen",
+            "in": "query",
+            "description": "Filter by open contests.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contests retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string"
+                      },
+                      "owner": {
+                        "type": "string",
+                        "description": "User id of the contest owner."
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "place": {
+                        "type": "string"
+                      },
+                      "image": {
+                        "type": "string"
+                      },
+                      "endTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "End time of the contest."
+                      },
+                      "statusOpen": {
+                        "type": "boolean",
+                        "description": "Indicates if the contest is open or closed."
+                      },
+                      "thumbsUp": {
+                        "type": "number",
+                        "description": "Number of thumbs up for the contest."
+                      },
+                      "thumbsDown": {
+                        "type": "number",
+                        "description": "Number of thumbs down for the contest."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting contests.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while getting the contests."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/get-time": {
+      "get": {
+        "summary": "Get remaining time.",
+        "description": "Get the remaining time of the given contest.",
+        "tags": ["contests"],
+        "parameters": [
+          {
+            "name": "contestId",
+            "in": "query",
+            "description": "Id of the contest.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contests remaining time retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string"
+                    },
+                    "remaining": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting remaining contest time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while getting the remaining contest time."
                     }
                   }
                 }

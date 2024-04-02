@@ -132,7 +132,7 @@ router.delete('/delete-submission', verifyTokenParticipant, (req, res) => {
         });
 });
 
-router.post('/vote-for-contest', verifyTokenParticipant, (req, res) => {
+router.put('/vote-for-contest', verifyTokenParticipant, (req, res) => {
     let contestData = req.body;
     if (!contestData || !contestData.contestId) {
         return res.status(400).send('Ongeldige gegevens voor het stemmen voor een wedstrijd.');
@@ -140,7 +140,7 @@ router.post('/vote-for-contest', verifyTokenParticipant, (req, res) => {
 
     contestData.user = req.user.username;
 
-    contestCB.fire('post', contestService, '/contests/vote', contestData, gatewayToken)
+    contestCB.fire('put', contestService, '/contests/vote', contestData, gatewayToken)
         .then(response => {
             res.send(response);
         })

@@ -407,7 +407,7 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
     }
 });
 
-router.post('/vote', verifyToken, async (req, res) => {
+router.put('/vote', verifyToken, async (req, res) => {
     try {
         const { contestId, thumbsUp } = req.body;
         let username = req.body.user

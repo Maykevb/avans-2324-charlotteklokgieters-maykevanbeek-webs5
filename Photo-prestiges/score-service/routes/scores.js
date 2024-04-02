@@ -32,7 +32,7 @@ async function connectToRabbitMQ() {
     }
 }
 
-router.post('/update-score', async (req, res) => {
+router.put('/update-score', async (req, res) => {
     try {
         const { submissionId } = req.body;
 
