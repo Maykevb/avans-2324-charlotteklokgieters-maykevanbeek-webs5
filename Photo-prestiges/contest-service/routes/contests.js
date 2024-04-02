@@ -397,7 +397,7 @@ router.post('/vote', verifyToken, async (req, res) => {
 
         if (channel) {
             const exchangeName = 'contest_exchange';
-            const routingKey = 'contest.';
+            const routingKey = 'contest.updated';
             const message = JSON.stringify(contest);
             channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
             console.log('Voted on contest message sent to RabbitMQ');

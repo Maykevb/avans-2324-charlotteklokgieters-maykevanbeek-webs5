@@ -6,7 +6,6 @@ const Recipient = require("mailersend").Recipient;
 const EmailParams = require("mailersend").EmailParams;
 const MailerSend = require("mailersend").MailerSend;
 const Sender = require("mailersend").Sender;
-const gatewayToken = process.env.GATEWAY_TOKEN;
 const mailersend = new MailerSend({
     apiKey: process.env.MAIL_API_KEY,
 });
@@ -30,7 +29,7 @@ router.post('/registration', async (req, res) => {
 async function sendRegistrationEmail(email, username, password) {
     try {
         const recipients = [new Recipient(email, username)];
-        const sentFrom = new Sender("MS_BG0VX6@trial-3zxk54vnw5xljy6v.mlsender.net", "Mayke en Charlotte");
+        const sentFrom = new Sender(process.env.MAIL_SENDER, "Mayke en Charlotte");
 
         const emailParams = new EmailParams()
             .setFrom(sentFrom)
