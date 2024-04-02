@@ -1,9 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 const contestRoutes = require('./routes/contests');
 const amqp = require('amqplib');
 const User = require('./models/User');
 const Contest = require('./models/Contest')
+const Submission = require('./models/Submission')
 const app = express();
 
 app.use(express.json({ limit: '50mb' }));
@@ -103,8 +105,43 @@ async function connectAndProcessStatusMessages() {
     }
 }
 
+async function connectSubmissionScoreUpdate() {
+    try {
+        const connection = await amqp.connect('amqp://localhost');
+        const channel = await connection.createChannel();
+        const exchangeName = 'submission_score_exchange';
+        const queueName = 'score_service_queue';
+
+        // Verbind de queue met de exchange en routing key
+        await channel.assertExchange(exchangeName, 'direct', { durable: true });
+        await channel.assertQueue(queueName, { durable: true });
+        await channel.bindQueue(queueName, exchangeName, 'submission.scoreUpdated');
+
+        channel.consume(queueName, async (message) => {
+            if (message) {
+                try {
+                    const submission = JSON.parse(message.content.toString());
+                    console.log('Ontvangen submission:', submission);
+
+                    const existingSubmission = await Submission.findById( new ObjectId(submission._id) )
+
+                    existingSubmission.score = submission.score
+                    await existingSubmission.save();
+                } catch (error) {
+                    console.error('Fout bij het updaten van de submission score:', error);
+                }
+            }
+        }, { noAck: true });
+
+        console.log('Verbonden met RabbitMQ consumer');
+    } catch (error) {
+        console.error('Fout bij verbinden met RabbitMQ:', error);
+    }
+}
+
 connectToRabbitMQ();
 connectAndProcessStatusMessages();
+connectSubmissionScoreUpdate();
 
 // Start de server
 const PORT = process.env.PORT || 7000;
