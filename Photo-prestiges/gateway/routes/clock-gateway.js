@@ -11,13 +11,13 @@ const options = {
     errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
     resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
 };
-const contestCB = new CircuitBreaker(callService, options);
+const clockCB = new CircuitBreaker(callService, options);
 
 // Route voor het ophalen van de resterende tijd van een wedstrijd
 router.get('/get-time', verifyToken, (req, res) => {
     const { contestId } = req.query;
 
-    contestCB.fire('get', clockService, `/contests/get?contestId=${contestId}`)
+    clockCB.fire('get', clockService, `/contests/get?contestId=${contestId}`)
         .then(response => {
             res.send(response);
         })
@@ -61,8 +61,8 @@ function callService(method, serviceAddress, resource, data) {
     });
 }
 
-contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
-    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+clockCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
+    if (error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
         const status = error.status || 'Onbekend';
         const statusText = error.statusText || 'Onbekend';
         const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';
@@ -74,7 +74,7 @@ contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
         console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource})`);
     }
 
-    return "De read service is offline. Probeer het later nog eens.";
+    return "De clock service is offline. Probeer het later nog eens.";
 });
 
 module.exports = router;

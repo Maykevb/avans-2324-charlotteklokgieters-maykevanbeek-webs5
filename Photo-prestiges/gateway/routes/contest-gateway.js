@@ -9,6 +9,7 @@ const upload = multer();
 const CircuitBreaker = require('opossum');
 const contestService = process.env.CONTESTSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
+
 const options = {
     timeout: 3000, // Als de functie langer dan 3 seconden duurt, wordt er een fout getriggerd
     errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
@@ -212,7 +213,7 @@ function verifyTokenParticipant(req, res, next) {
 }
 
 contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
-    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+    if (error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
         const status = error.status || 'Onbekend';
         const statusText = error.statusText || 'Onbekend';
         const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';

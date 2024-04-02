@@ -11,13 +11,13 @@ const options = {
     errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
     resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
 };
-const contestCB = new CircuitBreaker(callService, options);
+const readCB = new CircuitBreaker(callService, options);
 
 // Route voor het ophalen van een wedstrijden overzicht
 router.get('/get-contests', verifyToken, (req, res) => {
     const { page = 1, limit = 10, statusOpen = true } = req.query;
 
-    contestCB.fire('get', readService, `/contests/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
+    readCB.fire('get', readService, `/contests/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
         .then(response => {
             res.send(response);
         })
@@ -59,8 +59,8 @@ function callService(method, serviceAddress, resource, data) {
     });
 }
 
-contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
-    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+readCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
+    if (error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
         const status = error.status || 'Onbekend';
         const statusText = error.statusText || 'Onbekend';
         const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';

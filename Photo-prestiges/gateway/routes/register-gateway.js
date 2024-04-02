@@ -58,7 +58,7 @@ function callService(method, serviceAddress, resource, data) {
 }
 
 registerCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
-    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+    if (error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
         const status = error.status || 'Onbekend';
         const statusText = error.statusText || 'Onbekend';
         const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';
