@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' })
 
 const express = require('express');
 const router = express.Router();
@@ -7,20 +7,20 @@ const CircuitBreaker = require('opossum');
 const registerService = process.env.REGISTERSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const options = {
-    timeout: 3000, // Als de functie langer dan 3 seconden duurt, wordt er een fout getriggerd
-    errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
-    resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
+    timeout: 3000, // If the function takes longer than 3 seconds, an error gets triggered
+    errorThresholdPercentage: 50, // When 50% of the requests fail, the circuit gets interrupted
+    resetTimeout: 3000 // After 3 seconds, try again
 };
 const registerCB = new CircuitBreaker(callService, options);
 
-// Route voor het registreren van een nieuwe gebruiker
+// Route for registering a new user
 router.post('/register', (req, res) => {
     let userData = req.body;
     const validRoles = ['participant', 'targetOwner']
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!userData || !userData.username || !userData.email || !userData.password || !userData.role || !validRoles.includes(userData.role) || !emailRegex.test(userData.email)) {
-        return res.status(400).send('Ongeldige gegevens voor registratie.');
+        return res.status(400).send('Invalid data to register a new user.');
     }
 
     registerCB.fire('post', registerService, '/users/register', userData, gatewayToken)
@@ -28,8 +28,8 @@ router.post('/register', (req, res) => {
             res.send(response);
         })
         .catch(error => {
-            console.error('Fout bij het registreren van gebruiker:', error);
-            res.status(500).send('Er is een fout opgetreden bij het registreren van de gebruiker.');
+            console.error('Error while creating new user:', error);
+            res.status(500).send('An error occurred while creating a new user.');
         });
 });
 
@@ -58,19 +58,18 @@ function callService(method, serviceAddress, resource, data) {
 }
 
 registerCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
-    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
-        const status = error.status || 'Onbekend';
-        const statusText = error.statusText || 'Onbekend';
-        const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';
+    if (error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+        const status = error.status || 'Unknown';
+        const statusText = error.statusText || 'Unknown';
+        const errorMsg = error.data.msg || 'No errormessage available';
 
-        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource}):`, status, statusText, errorMsg);
-
-        return `Oopsie, er ging iets mis. Fout: ${status} - ${statusText} - ${errorMsg}. Probeer het later opnieuw.`;
+        console.error(`Error while trying to process the request (${method.toUpperCase()} ${serviceAddress}${resource}):`, status, statusText, errorMsg);
+        return `Oopsie, Something went wrong :(. Error: ${status} - ${statusText} - ${errorMsg}. Try again later.`;
     } else {
-        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource})`);
+        console.error(`Error while trying to process the request (${method.toUpperCase()} ${serviceAddress}${resource})`);
     }
 
-    return "De register service is offline. Probeer het later nog eens.";
+    return "The register service is offline. Try again later.";
 });
 
 module.exports = router;

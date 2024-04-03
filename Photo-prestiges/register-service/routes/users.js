@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' })
 
 const express = require('express');
 const router = express.Router();
@@ -14,27 +14,27 @@ async function connectToRabbitMQ() {
         channel = await connection.createChannel();
 
         const exchangeName = 'user_exchange';
-        const queueName = 'user_queue';
+        const queueName = 'user_created_queue';
         const routingKey = 'user.created';
 
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, routingKey);
 
-        console.log('Verbonden met RabbitMQ');
+        console.log('Connected to RabbitMQ');
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error);
     }
 }
 
-// Route voor het registreren van een nieuwe gebruiker
+// Route for registering a new user
 router.post('/register', verifyToken, async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
         let user = await User.findOne({ username });
         if (user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat al' });
+            return res.status(400).json({ msg: 'User already exists.' });
         }
 
         user = new User({
@@ -59,20 +59,20 @@ router.post('/register', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent.');
         }
 
-        res.json({ msg: 'Gebruiker succesvol geregistreerd' });
+        res.json({ msg: 'User successfully registered' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
-// Middleware om te controleren of het verzoek via de gateway komt
+// Middleware to check if the request is from the gateway
 function verifyToken(req, res, next) {
     const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
-        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+        return res.status(401).json({ msg: 'Unauthorized access.' });
     } else {
         console.log('Access granted.');
     }

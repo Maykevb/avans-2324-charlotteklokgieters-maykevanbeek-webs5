@@ -1,6 +1,8 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.GATEWAYPORT || 5000;
 const registerRoute = require('./routes/register-gateway');
 const authRoute = require('./routes/auth-gateway');
 const contestRoute = require('./routes/contest-gateway');
@@ -23,11 +25,13 @@ app.delete('/delete-contest', contestRoute);
 app.post('/register-for-contest', contestRoute);
 app.put('/update-submission', contestRoute);
 app.delete('/delete-submission', contestRoute);
-app.post('/vote-for-contest', contestRoute);
-
+app.delete('/delete-submission-as-owner', contestRoute);
+app.put('/vote-for-contest', contestRoute);
+app.get('/get-submission', contestRoute);
+app.get('/get-all-submissions', contestRoute);
 app.get('/get-contests', readRoutes);
 app.get('/get-time', clockRoutes);
 
 app.listen(port, () => {
-    console.log('Server is up on port ' + port)
+    console.log('Server is running on port ' + port)
 })

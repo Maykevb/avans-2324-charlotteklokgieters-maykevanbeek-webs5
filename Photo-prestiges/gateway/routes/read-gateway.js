@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' })
 
 const express = require('express');
 const router = express.Router();
@@ -7,32 +7,34 @@ const CircuitBreaker = require('opossum');
 const readService = process.env.READSERVICE;
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const options = {
-    timeout: 3000, // Als de functie langer dan 3 seconden duurt, wordt er een fout getriggerd
-    errorThresholdPercentage: 50, // Wanneer 50% van de verzoeken mislukt, wordt de circuit onderbroken
-    resetTimeout: 3000 // Na 3 seconden, probeer opnieuw.
+    timeout: 3000, // If the function takes longer than 3 seconds, an error gets triggered
+    errorThresholdPercentage: 50, // When 50% of the requests fail, the circuit gets interrupted
+    resetTimeout: 3000 // After 3 seconds, try again
 };
-const contestCB = new CircuitBreaker(callService, options);
+const readCB = new CircuitBreaker(callService, options);
 
-// Route voor het ophalen van een wedstrijden overzicht
+// Route for retrieving an overview of all contests
 router.get('/get-contests', verifyToken, (req, res) => {
     const { page = 1, limit = 10, statusOpen = true } = req.query;
 
-    contestCB.fire('get', readService, `/contests/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
+    readCB.fire('get', readService, `/read/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
         .then(response => {
             res.send(response);
         })
         .catch(error => {
-            console.error('Fout bij het ophalen van de wedstrijden:', error);
-            res.status(500).send('Er is een fout opgetreden bij het ophalen van de wedstrijden.');
+            console.error('Error while retrieving the contests:', error);
+            res.status(500).send('An error occurred while retrieving the contests.');
         });
 });
 
-function verifyToken(req, res) {
+function verifyToken(req, res, next) {
     const token = req.header('authorization');
 
     if (!token) {
-        return res.status(401).send('Geen JWT-token verstrekt');
+        return res.status(401).send('No JWT-token provided.');
     }
+
+    next();
 }
 
 function callService(method, serviceAddress, resource, data) {
@@ -59,20 +61,19 @@ function callService(method, serviceAddress, resource, data) {
     });
 }
 
-contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
-    if(error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
-        const status = error.status || 'Onbekend';
-        const statusText = error.statusText || 'Onbekend';
-        const errorMsg = error.data.msg || 'Geen foutbericht beschikbaar';
+readCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
+    if (error && error.status !== undefined && error.statusText  !== undefined && error.data !== undefined && error.data.msg !== undefined)  {
+        const status = error.status || 'Unknown';
+        const statusText = error.statusText || 'Unknown';
+        const errorMsg = error.data.msg || 'No errormessage available';
 
-        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource}):`, status, statusText, errorMsg);
-
-        return `Oopsie, er ging iets mis. Fout: ${status} - ${statusText} - ${errorMsg}. Probeer het later opnieuw.`;
+        console.error(`Error while trying to process the request (${method.toUpperCase()} ${serviceAddress}${resource}):`, status, statusText, errorMsg);
+        return `Oopsie, Something went wrong :(. Error: ${status} - ${statusText} - ${errorMsg}. Try again later.`;
     } else {
-        console.error(`Fout bij het uitvoeren van het verzoek (${method.toUpperCase()} ${serviceAddress}${resource})`);
+        console.error(`Error while trying to process the request (${method.toUpperCase()} ${serviceAddress}${resource})`);
     }
 
-    return "De read service is offline. Probeer het later nog eens.";
+    return "The read service is offline. Try again later.";
 });
 
 module.exports = router;
