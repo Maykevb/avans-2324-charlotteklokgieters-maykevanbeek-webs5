@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const app = express();
 const scoresRoutes = require('./routes/scores.js');
@@ -379,7 +381,7 @@ async function connectAndProcessMessages() {
 connectAndProcessMessages();
 
 // Het opstarten van de server
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.SCOREPORT || 10000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });

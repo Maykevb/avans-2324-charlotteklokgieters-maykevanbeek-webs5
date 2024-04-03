@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: '../.env' })
 
 const express = require('express');
 const router = express.Router();
@@ -16,7 +16,6 @@ router.get('/get', verifyToken, async (req, res) => {
             query.statusOpen = statusOpen === 'true';
         }
 
-        console.log(query)
         const contests = await Contest.find(query)
             .skip((page - 1) * limit)
             .limit(limit);

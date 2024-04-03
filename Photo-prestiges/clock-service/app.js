@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const amqp = require('amqplib');
@@ -89,7 +91,7 @@ async function connectAndProcessUpdateMessages() {
 
                     await contest.save();
 
-                    const remainingTime = contest.endTime - Date();
+                    const remainingTime = new Date(contest.endTime).getTime() - Date.now();
                     if (remainingTime > 0) {
                         setTimeout(() => { closeContest(contestId) }, remainingTime);
                     } else {
@@ -242,7 +244,7 @@ checkExpiredContests();
 setInterval(checkExpiredContests, 5 * 60 * 1000);
 
 // Start de server
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.CLOCKPORT || 9000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });

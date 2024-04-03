@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
@@ -148,7 +150,7 @@ async function connectAndProcessMessages() {
 connectAndProcessMessages();
 
 // Start de server
-const PORT = process.env.PORT || 7000;
+const PORT = process.env.CONTESTPORT || 7000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });

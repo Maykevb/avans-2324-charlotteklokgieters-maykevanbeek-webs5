@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const usersRoutes = require('./routes/users');
@@ -13,7 +15,7 @@ mongoose.connect('mongodb://localhost:27017/register-service')
     .catch(err => console.log(err));
 
 // Het opstarten van de server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.REGISTERPORT || 4000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });

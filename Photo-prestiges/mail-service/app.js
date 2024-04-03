@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const confRoutes = require('./routes/confirmation.js');
@@ -95,9 +97,9 @@ async function connectAndProcessUpdateContestStatus() {
 
                     await contest.save();
 
-                    if (contest.statusOpen !== undefined && !contest.statusOpen) {
+                    if (!contest.statusOpen) {
                         // TODO
-                        // await sendEndScore(contestId)
+                        // await sendEndScore(contest._id)
                     }
 
                     console.log('Wedstrijd succesvol bijgewerkt:', contest);
@@ -488,7 +490,7 @@ async function connectAndProcessMessages() {
 connectAndProcessMessages();
 
 // Start de server
-const PORT = process.env.PORT || 6000;
+const PORT = process.env.MAILPORT || 6000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });

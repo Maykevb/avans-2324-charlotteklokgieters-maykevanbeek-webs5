@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth');
@@ -65,7 +67,7 @@ async function connectAndProcessMessages() {
 connectAndProcessMessages();
 
 // Het opstarten van de server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.AUTHPORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });

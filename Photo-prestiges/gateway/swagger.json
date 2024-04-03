@@ -16,6 +16,7 @@
       "post": {
         "summary": "Register a new user.",
         "description": "Register a new user using the given credentials.",
+        "tags": ["account"],
         "requestBody": {
           "required": true,
           "content": {
@@ -105,6 +106,7 @@
       "post": {
         "summary": "Log in.",
         "description": "Logging in with your username and password.",
+        "tags": ["account"],
         "requestBody": {
           "required": true,
           "content": {
@@ -184,7 +186,7 @@
       "post": {
         "summary": "Create a contest.",
         "description": "Creating a contest (without target).",
-        "tags": ["contests"],
+        "tags": ["contests - owner"],
         "requestBody": {
           "required": true,
           "content": {
@@ -199,7 +201,7 @@
                   "endTime": {
                     "type": "string",
                     "format": "date-time",
-                    "description": "The endtime of the contest."
+                    "description": "The end time of the contest in UTC. The Netherlands usually uses CET (+1h) or CEST in the summer (+2h)."
                   }
                 },
                 "required": ["endTime"]
@@ -272,7 +274,7 @@
       "put": {
         "summary": "Update an existing contest.",
         "description": "Updating an existing contest (with target).",
-        "tags": ["contests"],
+        "tags": ["contests - owner"],
         "requestBody": {
           "required": true,
           "content": {
@@ -360,7 +362,7 @@
       "delete": {
         "summary": "Delete an existing contest.",
         "description": "Deleting an existing contest.",
-        "tags": ["contests"],
+        "tags": ["contests - owner"],
         "requestBody": {
           "required": true,
           "content": {
@@ -439,7 +441,7 @@
       "post": {
         "summary": "Register for a contest as a participant.",
         "description": "Here you can enter your submission for a contest.",
-        "tags": ["contests"],
+        "tags": ["submissions - participant"],
         "security": [
           {
             "bearerAuth": []
@@ -523,7 +525,7 @@
         "summary": "Update your submission.",
         "description": "Here you can update your submission for a contest by uploading a picture.",
         "tags": [
-          "contests"
+          "submissions - participant"
         ],
         "security": [
           {
@@ -608,7 +610,7 @@
       "delete": {
         "summary": "Delete an existing submission.",
         "description": "Deleting an existing submission.",
-        "tags": ["contests"],
+        "tags": ["submissions - participant"],
         "requestBody": {
           "required": true,
           "content": {
@@ -687,7 +689,7 @@
       "put": {
         "summary": "Vote for a contest.",
         "description": "Vote for a contest you're participating in.",
-        "tags": ["contests"],
+        "tags": ["contests - participant"],
         "requestBody": {
           "required": true,
           "content": {
@@ -770,7 +772,7 @@
       "get": {
         "summary": "Get all contests.",
         "description": "Get a list of all running contests.",
-        "tags": ["contests"],
+        "tags": ["contests - participant"],
         "parameters": [
           {
             "name": "page",
@@ -896,7 +898,7 @@
       "get": {
         "summary": "Get remaining time.",
         "description": "Get the remaining time of the given contest.",
-        "tags": ["contests"],
+        "tags": ["contests - participant"],
         "parameters": [
           {
             "name": "contestId",

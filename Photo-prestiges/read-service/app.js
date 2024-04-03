@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const amqp = require('amqplib');
@@ -238,7 +240,7 @@ async function connectAndProcessMessages() {
 connectAndProcessMessages();
 
 // Start de server
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.READPORT || 8000;
 app.listen(PORT, () => {
     console.log(`Server gestart op poort ${PORT}`);
 });
