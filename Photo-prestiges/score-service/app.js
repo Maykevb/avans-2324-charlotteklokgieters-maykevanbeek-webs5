@@ -14,12 +14,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/scores', scoresRoutes);
 
-// MongoDB-verbinding
+// MongoDB-connection
 mongoose.connect('mongodb://localhost:27017/score-service')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-// RabbitMQ-verbinding
+// RabbitMQ-connection
 async function connectToRabbitMQCreateSubmission() {
     try {
         const connection = await amqp.connect('amqp://localhost');
@@ -27,7 +27,7 @@ async function connectToRabbitMQCreateSubmission() {
         const exchangeName = 'submission_exchange';
         const queueName = 'score_submission_created_queue';
 
-        // Verbind de queue met de exchange en routing key
+        // Connect the queue with the exchange and routing key
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, 'submission.created');
@@ -36,7 +36,7 @@ async function connectToRabbitMQCreateSubmission() {
             if (message) {
                 try {
                     const submission = JSON.parse(message.content.toString());
-                    console.log('Ontvangen submission:', submission);
+                    console.log('Received submission:', submission);
 
                     const newSubmission = new Submission({
                         _id: submission._id,
@@ -48,16 +48,16 @@ async function connectToRabbitMQCreateSubmission() {
 
                     await newSubmission.save();
 
-                    console.log('Nieuwe submission opgeslagen in de database:', newSubmission);
+                    console.log('Submission saved to database:', newSubmission);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bericht:', error);
+                    console.error('Error while trying to process the message:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ');
+        console.log('Connected to RabbitMQ');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ:', error);
+        console.error('Error while trying to connect to RabbitMQ:', error);
     }
 }
 
@@ -68,7 +68,7 @@ async function connectToRabbitMQUpdateSubmission() {
         const exchangeName = 'update_submission_exchange';
         const queueName = 'score_service_submission_update_queue';
 
-        // Verbind de queue met de exchange en routing key
+        // Connect the queue with the exchange and routing key
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, 'submission.updated');
@@ -77,11 +77,11 @@ async function connectToRabbitMQUpdateSubmission() {
             if (message) {
                 try {
                     const submission = JSON.parse(message.content.toString());
-                    console.log('Ontvangen submission:', submission);
+                    console.log('Received submission:', submission);
 
                     const existingSubmission = await Submission.findById( new ObjectId(submission._id) )
                     if (!existingSubmission) {
-                        console.error('Submission niet gevonden.');
+                        console.error('Submission not found.');
                         return;
                     }
 
@@ -92,14 +92,14 @@ async function connectToRabbitMQUpdateSubmission() {
                     await existingSubmission.save();
                     await updateSubmissionScore(submission._id);
                 } catch (error) {
-                    console.error('Fout bij het opslaan van de submission:', error);
+                    console.error('Error while saving the submission:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ');
+        console.log('Connected to RabbitMQ');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ:', error);
+        console.error('Error while trying to connect to RabbitMQ:', error);
     }
 }
 
@@ -118,34 +118,35 @@ async function connectAndProcessContestUpdate() {
             if (message) {
                 try {
                     const contestData = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+                    console.log('Received updated contest:', contestData);
 
                     const contestId = contestData._id;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
-                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        console.error('Contest not found:', contestId);
                         return;
                     }
 
                     if (contestData.place) {
                         contest.place = contestData.place;
                     }
+
                     if (contestData.image) {
                         contest.image = contestData.image;
                     }
 
                     await contest.save();
-                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                    console.log('Contest successfully updated:', contest);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                    console.error('Error while trying to process the message:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van contest.updated berichten');
+        console.log('Connected with RabbitMQ to process contest.updated messages');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.updated berichten:', error);
+        console.error('Error while connecting with RabbitMQ to process contest.updated messages:', error);
     }
 }
 
@@ -164,13 +165,13 @@ async function connectAndProcessUpdateContestStatus() {
             if (message) {
                 try {
                     const content = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bericht over de wedstrijdstatus:', content);
+                    console.log('Received contest status message:', content);
 
                     const contestId = content.contestId;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
-                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        console.error('Contest not found:', contestId);
                         return;
                     }
 
@@ -179,16 +180,16 @@ async function connectAndProcessUpdateContestStatus() {
                     }
 
                     await contest.save();
-                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                    console.log('Contest status successfully updated:', contest);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                    console.error('Error while trying to process the message:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van contest.updated berichten');
+        console.log('Connected with RabbitMQ to process contest status update messages');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.updated berichten:', error);
+        console.error('Error while connecting with RabbitMQ to process contest status update messages:', error);
     }
 }
 
@@ -207,7 +208,7 @@ async function connectToRabbitMQCreateContest() {
             if (message) {
                 try {
                     const contest = JSON.parse(message.content.toString());
-                    console.log('Ontvangen wedstrijd:', contest);
+                    console.log('Received contest:', contest);
 
                     const newContest = new Contest({
                         _id: contest._id.toString(),
@@ -219,16 +220,16 @@ async function connectToRabbitMQCreateContest() {
                     });
 
                     await newContest.save();
-                    console.log('Nieuwe wedstrijd opgeslagen in de database:', newContest);
+                    console.log('Contest saved to database:', newContest);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bericht:', error);
+                    console.error('Error trying to create and save the contest:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van contest.created berichten');
+        console.log('Connected with RabbitMQ to process contest.created messages.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.created berichten:', error);
+        console.error('Error while connecting with RabbitMQ to process contest.created messages:', error);
     }
 }
 
@@ -247,28 +248,28 @@ async function connectAndDeleteContests() {
             if (message) {
                 try {
                     const contestData = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+                    console.log('Received deleted contest:', contestData);
 
                     const contestId = contestData._id;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
-                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        console.error('Contest not found:', contestId);
                         return;
                     }
 
                     await Submission.deleteMany({ contest: contest });
                     await Contest.deleteOne({ _id: contestId });
-                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                    console.log('Contest succesfully deleted:', contest);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                    console.error('Error trying to delete the contest:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van contest.deleted berichten');
+        console.log('Connected with RabbitMQ to process contest.deleted messages.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.deleted berichten:', error);
+        console.error('Error while connecting with RabbitMQ to process contest.deleted messages:', error);
     }
 }
 
@@ -287,27 +288,27 @@ async function connectAndDeleteSubmissions() {
             if (message) {
                 try {
                     const submissionData = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bijgewerkte submission:', submissionData);
+                    console.log('Received deleted submission:', submissionData);
 
                     const submissionId = submissionData._id;
                     const submission = await Submission.findById(submissionId);
 
                     if (!submission) {
-                        console.error('Submission niet gevonden in de database:', submissionId);
+                        console.error('Submission not found:', submissionId);
                         return;
                     }
 
                     await Submission.deleteOne({ _id: submissionId });
-                    console.log('Submission succesvol bijgewerkt:', submission);
+                    console.log('Submission successfully deleted:', submission);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                    console.error('Error trying to delete the submission:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van submission.deleted berichten');
+        console.log('Connected with RabbitMQ to process submission.deleted messages.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van submission.deleted berichten:', error);
+        console.error('Error while connecting with RabbitMQ to process submission.deleted messages:', error);
     }
 }
 
@@ -326,13 +327,13 @@ async function connectAndProcessContestVotingUpdate() {
             if (message) {
                 try {
                     const contestData = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+                    console.log('Received updated contest:', contestData);
 
                     const contestId = contestData._id;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
-                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        console.error('Contest not found:', contestId);
                         return;
                     }
 
@@ -342,16 +343,16 @@ async function connectAndProcessContestVotingUpdate() {
                     }
 
                     await contest.save();
-                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                    console.log('Contest successfully updated:', contest);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het bijgewerkte bericht:', error);
+                    console.error('Error trying to update the contest:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van contest.votesUpdated berichten');
+        console.log('Connected with RabbitMQ to process contest.votesUpdated messages.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van contest.votesUpdated berichten:', error);
+        console.error('Error while connecting with RabbitMQ to process contest.votesUpdated messages:', error);
     }
 }
 
@@ -380,8 +381,8 @@ async function connectAndProcessMessages() {
 
 connectAndProcessMessages();
 
-// Het opstarten van de server
+// Starting the server
 const PORT = process.env.SCOREPORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Server gestart op poort ${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });

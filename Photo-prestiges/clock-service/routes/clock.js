@@ -5,47 +5,47 @@ const router = express.Router();
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const Contest = require('../models/Contest');
 
-// Route voor het ophalen van een wedstrijden overzicht
+// Route for retrieving the remaining time of a contest
 router.get('/get', verifyToken, async (req, res) => {
     try {
         const { contestId } = req.query;
 
         let contest = await Contest.findById(contestId);
         if(!contest) {
-            return res.status(400).json({ msg: 'Er bestaat geen wedstrijd met deze ID'})
+            return res.status(400).json({ msg: 'No contest found.'})
         }
 
         if (!contest.endTime) {
-            return res.status(400).json({ msg: 'Eindtijd is niet ingevuld voor deze wedstrijd' });
+            return res.status(400).json({ msg: 'Contest does not have an endTime.' });
         }
 
         let now = new Date();
         let remaining = contest.endTime - now;
         if (remaining <= 0) {
-            res.json({ msg: 'Deze wedstrijd is afgelopen op',  endTime: new Date(contest.endTime).toLocaleString() });
+            res.json({ msg: 'This contest ends on',  endTime: new Date(contest.endTime).toLocaleString() });
         } else {
             let days = Math.floor(remaining / (1000 * 60 * 60 * 24));
             let hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             let minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
             let seconds = Math.floor((remaining % (1000 * 60)) / 1000);
 
-            res.json({ msg: 'De resterende tijd voor deze wedstrijd is: ', remaining: `${days} dagen:${hours} uur:${minutes} minuten:${seconds} seconden` });
+            res.json({ msg: 'The remaining time for this contest is: ', remaining: `${days} days:${hours} hours:${minutes} minutes:${seconds} seconds.` });
         }
     } catch (error) {
-        console.error('Fout bij het ophalen van de resterende tijd van deze wedstrijd:', error);
-        res.status(500).json({ msg: 'Serverfout bij het ophalen van de resterende tijd van deze wedstrijd' });
+        console.error('Error while retrieving the remaining time of the contest:', error);
+        res.status(500).json({ msg: 'Server error while retrieving the remaining time of the contest.' });
     }
 });
 
-// Middleware om te controleren of het verzoek via de gateway komt
+// Middleware to check if the request is from the gateway
 function verifyToken(req, res, next) {
     const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
-        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+        return res.status(401).json({ msg: 'Unauthorized access.' });
     } else {
-        console.log('Access granted');
+        console.log('Access granted.');
     }
 
     next();

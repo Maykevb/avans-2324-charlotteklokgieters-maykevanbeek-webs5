@@ -7,24 +7,24 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const gatewayToken = process.env.GATEWAY_TOKEN;
 
-// Route voor het inloggen van een gebruiker
+// Route for logging in for a user
 router.post('/login', verifyToken, async (req, res) => {
     try {
         const { username, password } = req.body;
 
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker niet gevonden' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ msg: 'Ongeldig wachtwoord' });
+            return res.status(400).json({ msg: 'Invalid password.' });
         }
 
         const secretKey = checkRole(user.role);
         if (!secretKey) {
-            return res.status(422).json({ msg: 'De gebruiker heeft geen geldige rol' });
+            return res.status(422).json({ msg: 'User has van invalid role.' });
         }
 
         const payload = {
@@ -41,18 +41,18 @@ router.post('/login', verifyToken, async (req, res) => {
             (err, token) => {
                 if (err) {
                     console.error(err.message);
-                    return res.status(500).json({ msg: 'Er is een fout opgetreden bij het genereren van het token' });
+                    return res.status(500).json({ msg: 'Something went wrong while generating the token.' });
                 }
                 res.json({ token });
             }
         );
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
-// Check om de juiste geheime sleutel op te halen op basis van de rol van de gebruiker
+// Check to retrieve the correct secret key based on the role of the user
 function checkRole(role) {
     let secretKey;
 
@@ -70,15 +70,15 @@ function checkRole(role) {
     return secretKey;
 }
 
-// Middleware om te controleren of het verzoek via de gateway komt
+// Middleware to check if the request is from the gateway
 function verifyToken(req, res, next) {
     const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
-        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+        return res.status(401).json({ msg: 'Unauthorized access.' });
     } else {
-        console.log('Access granted');
+        console.log('Access granted.');
     }
 
     next();

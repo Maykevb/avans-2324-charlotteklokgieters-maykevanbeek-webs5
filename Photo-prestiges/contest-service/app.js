@@ -16,12 +16,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/contests', contestRoutes);
 app.use('/uploads', express.static('uploads'));
 
-// MongoDB-verbinding
+// MongoDB-connecting
 mongoose.connect('mongodb://localhost:27017/contest-service')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-// RabbitMQ-verbinding
+// RabbitMQ-connecting
 async function connectToRabbitMQUserCreate() {
     try {
         const connection = await amqp.connect('amqp://localhost');
@@ -29,7 +29,7 @@ async function connectToRabbitMQUserCreate() {
         const exchangeName = 'user_exchange';
         const queueName = 'contest_user_created_queue';
 
-        // Verbind de queue met de exchange en routing key
+        // Connect the queue with the exchange and routing key
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, 'user.created');
@@ -38,7 +38,7 @@ async function connectToRabbitMQUserCreate() {
             if (message) {
                 try {
                     const user = JSON.parse(message.content.toString());
-                    console.log('Ontvangen gebruiker:', user);
+                    console.log('Received user:', user);
 
                     const isPasswordHashed = /^(?=.*[a-zA-Z])(?=.*[0-9])/.test(user.password);
                     const hashedPassword = isPasswordHashed ? user.password : await bcrypt.hash(user.password, 10);
@@ -53,14 +53,14 @@ async function connectToRabbitMQUserCreate() {
 
                     await newUser.save();
                 } catch (error) {
-                    console.error('Fout bij het opslaan van de gebruiker:', error);
+                    console.error('Error while saving the user:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ consumer');
+        console.log('Connected with RabbitMQ consumer.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ:', error);
+        console.error('Error while connecting with RabbitMQ:', error);
     }
 }
 
@@ -79,13 +79,13 @@ async function connectAndUpdateStatusContest() {
             if (message) {
                 try {
                     const content = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bericht over de wedstrijdstatus:', content);
+                    console.log('Received message of the contest status:', content);
 
                     const contestId = content.contestId;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
-                        console.error('Wedstrijd niet gevonden in de database:', contestId);
+                        console.error('Contest not found:', contestId);
                         return;
                     }
 
@@ -94,16 +94,16 @@ async function connectAndUpdateStatusContest() {
                     }
 
                     await contest.save();
-                    console.log('Wedstrijd succesvol bijgewerkt:', contest);
+                    console.log('Contest successfully updated:', contest);
                 } catch (error) {
-                    console.error('Fout bij het verwerken van het ontvangen bericht:', error);
+                    console.error('Error while processing the received message:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ voor het verwerken van wedstrijdstatusberichten');
+        console.log('Connected to RabbitMQ for processing contest status messages.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ voor het verwerken van wedstrijdstatusberichten:', error);
+        console.error('Error connecting to RabbitMQ for processing contest status messages:', error);
     }
 }
 
@@ -114,7 +114,7 @@ async function connectSubmissionScoreUpdate() {
         const exchangeName = 'submission_score_exchange';
         const queueName = 'score_service_queue';
 
-        // Verbind de queue met de exchange en routing key
+        // Connect the queue with the exchange and routing key
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         await channel.assertQueue(queueName, { durable: true });
         await channel.bindQueue(queueName, exchangeName, 'submission.scoreUpdated');
@@ -123,21 +123,21 @@ async function connectSubmissionScoreUpdate() {
             if (message) {
                 try {
                     const submission = JSON.parse(message.content.toString());
-                    console.log('Ontvangen submission:', submission);
+                    console.log('Received submission:', submission);
 
                     const existingSubmission = await Submission.findById( new ObjectId(submission._id) )
 
                     existingSubmission.score = submission.score
                     await existingSubmission.save();
                 } catch (error) {
-                    console.error('Fout bij het updaten van de submission score:', error);
+                    console.error('Error while updating the submission score:', error);
                 }
             }
         }, { noAck: true });
 
-        console.log('Verbonden met RabbitMQ consumer');
+        console.log('Connected with RabbitMQ consumer.');
     } catch (error) {
-        console.error('Fout bij verbinden met RabbitMQ:', error);
+        console.error('Error while connecting to RabbitMQ:', error);
     }
 }
 
@@ -149,8 +149,8 @@ async function connectAndProcessMessages() {
 
 connectAndProcessMessages();
 
-// Start de server
+// Starting the server
 const PORT = process.env.CONTESTPORT || 7000;
 app.listen(PORT, () => {
-    console.log(`Server gestart op poort ${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });

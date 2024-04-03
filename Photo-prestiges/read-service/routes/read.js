@@ -5,7 +5,7 @@ const router = express.Router();
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const Contest = require('../models/Contest');
 
-// Route voor het ophalen van een wedstrijden overzicht
+// Route for retrieving an overview of all contests
 router.get('/get', verifyToken, async (req, res) => {
     try {
         const { page = 1, limit = 10, statusOpen} = req.query;
@@ -22,20 +22,20 @@ router.get('/get', verifyToken, async (req, res) => {
 
         res.json(contests);
     } catch (error) {
-        console.error('Fout bij het ophalen van wedstrijden:', error);
-        res.status(500).json({ msg: 'Serverfout bij het ophalen van wedstrijden' });
+        console.error('Error while retrieving contests:', error);
+        res.status(500).json({ msg: 'Server error while trying to retrieve the contests' });
     }
 });
 
-// Middleware om te controleren of het verzoek via de gateway komt
+// Middleware to check if the request is from the gateway
 function verifyToken(req, res, next) {
     const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
-        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+        return res.status(401).json({ msg: 'Unauthorized access.' });
     } else {
-        console.log('Access granted');
+        console.log('Access granted.');
     }
 
     next();

@@ -101,7 +101,7 @@ async function connectToRabbitMQ() {
     }
 }
 
-// Route voor het aanmaken van een nieuwe wedstrijd
+// Route for creating a new contest
 router.post('/create', verifyToken, async (req, res) => {
     try {
         const { description, endTime } = req.body;
@@ -109,17 +109,17 @@ router.post('/create', verifyToken, async (req, res) => {
 
         let user = await User.findOne({ username });
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         if (user.role !== 'targetOwner') {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd aan te maken'})
+            return res.status(401).json({msg: 'Invalid role for creating a contest.'})
         }
 
-        const oneHourInMillis = 60 * 60 * 1000; // 1 uur in milliseconden
-        const twoYearsInMillis = 2 * 365 * 24 * 60 * 60 * 1000; // 2 jaar in milliseconden
+        const oneHourInMillis = 60 * 60 * 1000; // 1 hour in milliseconds
+        const twoYearsInMillis = 2 * 365 * 24 * 60 * 60 * 1000; // 2 years in milliseconds
 
-        // Huidige tijd in UTC
+        // Current time in UTC
         const currentUTCMillis = new Date().getTime();
 
         const minEndTime = currentUTCMillis + oneHourInMillis;
@@ -129,7 +129,7 @@ router.post('/create', verifyToken, async (req, res) => {
 
         if (endTimeMillis < minEndTime || endTimeMillis > maxEndTime) {
             return res.status(400).json({
-                msg: 'Onjuiste endTime, endTime moet minimaal 1 uur in de toekomst en maximaal 2 jaar in de toekomst zijn.'
+                msg: 'Incorrect endTime, endTime has to be at least 1 hour in the future and max 2 years in the future.'
             });
         }
 
@@ -151,10 +151,10 @@ router.post('/create', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Contest succesvol aangemaakt', contestId: contest._id });
+        res.json({ msg: 'Contest successfully created', contestId: contest._id });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -167,20 +167,20 @@ router.put('/updateContest', verifyToken, upload.single('image'), async (req, re
         let user = await User.findOne({ username });
 
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         if (!contest) {
-            return res.status(400).json({ msg: 'Wedstrijd bestaat niet' });
+            return res.status(400).json({ msg: 'Contest not found.' });
         }
 
         let owner = await User.findById(contest.owner)
         if (user.role !== 'targetOwner' || user.username !== owner.username) {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze wedstrijd te updaten'})
+            return res.status(401).json({msg: 'Invalid credentials for updating this contest.'})
         }
 
         if (!image || !image.buffer) {
-            return res.status(400).json({ msg: 'Invalid image data' });
+            return res.status(400).json({ msg: 'Invalid image data.' });
         }
 
         const imageBuffer = Buffer.from(image.buffer.data);
@@ -215,10 +215,10 @@ router.put('/updateContest', verifyToken, upload.single('image'), async (req, re
             console.log('RabbitMQ channel is not available. Message not sent.');
         }
 
-        res.json({ msg: 'Contest succesvol geüpdate' });
+        res.json({ msg: 'Contest successfully updated.' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -231,16 +231,16 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
         let user = await User.findOne({ username })
 
         if (!contest) {
-            return res.status(404).json({ msg: 'Wedstrijd niet gevonden' });
+            return res.status(404).json({ msg: 'Contest not found.' });
         }
 
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         let owner = await User.findById(contest.owner)
         if (user.username !== owner.username) {
-            return res.status(401).json({ msg: 'Je hebt niet de juiste rechten om deze wedstrijd te verwijderen' });
+            return res.status(401).json({ msg: 'Invalid role for deleting this contest' });
         }
 
         if (contest.image) {
@@ -261,10 +261,10 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Contest succesvol verwijderd' });
+        res.json({ msg: 'Contest successfully deleted.' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -275,21 +275,21 @@ router.post('/register', verifyToken, async (req, res) => {
 
         let user = await User.findOne({ username });
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found' });
         }
 
-        if(user.role !== 'participant') {
-            return res.status(401).json({ msg: 'Je hebt niet de juiste rechten om je in te schrijven voor een wedstrijd' });
+        if (user.role !== 'participant') {
+            return res.status(401).json({ msg: 'Invalid role for entering a contest.' });
         }
 
         let contest = await Contest.findById(contestId);
-        if(!contest) {
-            return res.status(400).json({ msg: 'Er bestaat geen wedstrijd met deze ID'})
+        if (!contest) {
+            return res.status(400).json({ msg: 'No contest with this ID found.'})
         }
 
         const existingSubmission = await Submission.findOne({ contest: contestId, participant: user._id });
         if (existingSubmission) {
-            return res.status(400).json({ msg: 'Je hebt al deelgenomen aan deze wedstrijd' });
+            return res.status(400).json({ msg: 'You have already entered this contest, this is your submissionId: ' + existingSubmission._id });
         }
 
         let submission = new Submission({
@@ -309,10 +309,10 @@ router.post('/register', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Gebruiker succesvol aangemeld bij wedstrijd', submissionId: submission._id });
+        res.json({ msg: 'User successfully entered the contest', submissionId: submission._id });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -325,20 +325,20 @@ router.put('/updateSubmission', verifyToken, upload.single('image'), async (req,
         let user = await User.findOne({ username });
 
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission niet gevonden' });
+            return res.status(404).json({ msg: 'Submission not found.' });
         }
 
         let participant = await User.findById(submission.participant)
         if (user.role !== 'participant' || user.username !== participant.username) {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze submission te updaten'})
+            return res.status(401).json({msg: 'Invalid credentials for updating this submission'})
         }
 
         if (!image || !image.buffer) {
-            return res.status(400).json({ msg: 'Invalid image data' });
+            return res.status(400).json({ msg: 'Invalid image data.' });
         }
 
         const imageBuffer = Buffer.from(image.buffer.data);
@@ -372,10 +372,10 @@ router.put('/updateSubmission', verifyToken, upload.single('image'), async (req,
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Submission succesvol geüpdate' });
+        res.json({ msg: 'Submission successfully updated.' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 })
 
@@ -388,16 +388,16 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
         let user = await User.findOne({ username });
 
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission niet gevonden' });
+            return res.status(404).json({ msg: 'Submission not found.' });
         }
 
         let participant = await User.findById(submission.participant)
         if (user.role !== 'participant' || user.username !== participant.username) {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze submission te verwijderen'})
+            return res.status(401).json({msg: 'Invalid credentials for deleting this submission.'})
         }
 
         if (submission.image) {
@@ -417,10 +417,10 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Submission succesvol verwijderd' });
+        res.json({ msg: 'Submission successfully deleted.' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -451,7 +451,7 @@ router.delete('/deleteSubmissionAsOwner', verifyToken, async (req, res) => {
         }
 
         if (user.role !== 'targetOwner' || user.username !== owner.username) {
-            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze submission te verwijderen'})
+            return res.status(401).json({msg: 'Invalid credentials for deleting this submission'})
         }
 
         if (submission.image) {
@@ -471,10 +471,10 @@ router.delete('/deleteSubmissionAsOwner', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Submission succesvol verwijderd' });
+        res.json({ msg: 'Submission successfully deleted.' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -485,21 +485,21 @@ router.put('/vote', verifyToken, async (req, res) => {
 
         let user = await User.findOne({ username });
         if (!user) {
-            return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
+            return res.status(400).json({ msg: 'User not found.' });
         }
 
         if (user.role !== 'participant') {
-            return res.status(401).json({ msg: 'Je hebt niet de juiste rechten om je in te schrijven voor een wedstrijd' });
+            return res.status(401).json({ msg: 'Invalid role for voting for a contest.' });
         }
 
         let contest = await Contest.findById(contestId);
         if(!contest) {
-            return res.status(400).json({ msg: 'Er bestaat geen wedstrijd met deze ID'})
+            return res.status(400).json({ msg: 'No contest with this ID found.' })
         }
 
         const existingSubmission = await Submission.findOne({ contest: contestId, participant: user._id });
         if (!existingSubmission) {
-            return res.status(400).json({ msg: 'Je doet momenteel niet mee aan deze wedstrijd' });
+            return res.status(400).json({ msg: 'You are currently not participating in this contest.' });
         }
 
         if (thumbsUp) {
@@ -520,10 +520,10 @@ router.put('/vote', verifyToken, async (req, res) => {
             console.log('RabbitMQ channel is not available. Message not sent');
         }
 
-        res.json({ msg: 'Succesvol voor wedstijd gestemd' });
+        res.json({ msg: 'Successfully voted for this contest.' });
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
@@ -544,8 +544,8 @@ router.get('/getSubmission', verifyToken, async (req, res) => {
 
         res.json(submission);
     } catch (error) {
-        console.error('Fout bij het ophalen van submission:', error);
-        res.status(500).json({ msg: 'Serverfout bij het ophalen van submission' });
+        console.error('Error retrieving the submission:', error);
+        res.status(500).json({ msg: 'Server error while retrieving the submission.' });
     }
 });
 
@@ -570,18 +570,18 @@ router.get('/getAllSubmissions', verifyToken, async (req, res) => {
 
         res.json(submissions);
     } catch (error) {
-        console.error('Fout bij het ophalen van alle submissions:', error);
-        res.status(500).json({ msg: 'Serverfout bij het ophalen van submissions' });
+        console.error('Error while retrieving all submissions:', error);
+        res.status(500).json({ msg: 'Server error while retrieving all submissions of the contest' });
     }
 });
 
-// Middleware om te controleren of het verzoek via de gateway komt
+// Middleware to check if the request is from the gateway
 function verifyToken(req, res, next) {
     const token = req.header('Gateway');
 
     if (!token || token !== gatewayToken) {
         console.log('Unauthorized access detected.');
-        return res.status(401).json({ msg: 'Ongeautoriseerde toegang' });
+        return res.status(401).json({ msg: 'Unauthorized access.' });
     } else {
         console.log('Access granted.');
     }

@@ -23,7 +23,7 @@ router.post('/registration', async (req, res) => {
         // Send registration confirmation email
         await sendRegistrationEmail(email, username, password);
 
-        res.json({ msg: 'Bevestigingsmail verzonden' });
+        res.json({ msg: 'Confirmation email sent.' });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -36,18 +36,18 @@ router.post('/end-of-contest', async (req, res) => {
 
         let contest = await Contest.findById(new ObjectId(contestId));
         if (!contest) {
-            return res.status(400).json({ msg: 'Wedstrijd bestaat niet' });
+            return res.status(400).json({ msg: 'Contest not found.' });
         }
 
         const submissions = await Submission.find({ contest: contest }).sort({ score: -1 });
         if (submissions.length === 0) {
-            return res.status(400).json({ msg: 'Geen inzendingen gevonden voor deze wedstrijd' });
+            return res.status(400).json({ msg: 'No submissions found for this contest.' });
         }
 
         const winnerSubmission = submissions[0];
         const winnerUser = await User.findById(winnerSubmission.participant);
         if (!winnerUser) {
-            return res.status(400).json({ msg: 'Winnaar niet gevonden' });
+            return res.status(400).json({ msg: 'Winner not found.' });
         }
 
         const loserSubmissions = submissions.slice(1);
@@ -62,7 +62,7 @@ router.post('/end-of-contest', async (req, res) => {
 
         const contestOwner = await User.findById(contest.owner);
         if (!contestOwner) {
-            return res.status(400).json({ msg: 'Eigenaar van de wedstrijd niet gevonden' });
+            return res.status(400).json({ msg: 'Owner of the contest not found.' });
         }
 
         await sendEndScores(winnerUser, winnerSubmission.score, true);
@@ -72,7 +72,7 @@ router.post('/end-of-contest', async (req, res) => {
 
         await sendScoresToOwner(contestOwner, winnerUser.username, winnerSubmission.score, validLoserUsers);
 
-        res.json({ msg: 'Mails verzonden' });
+        res.json({ msg: 'Mails sent.' });
 
     } catch (err) {
         console.error(err.message);
@@ -90,16 +90,16 @@ async function sendRegistrationEmail(email, username, password) {
         const emailParams = new EmailParams()
             .setFrom(sentFrom)
             .setTo(recipients)
-            .setSubject("Bevestiging registratie")
-            .setHtml('Je Photo Prestiges account is geregistreerd! \n' +
-                'Gebruikersnaam: ' + username + '\n' +
-                'Wachtwoord: ' + password);
+            .setSubject("Confirmation registration")
+            .setHtml('Your Photo Prestiges account is registered! \n' +
+                'Username: ' + username + '\n' +
+                'Password: ' + password);
 
         await mailersend.email.send(emailParams);
-        console.log('Email verzonden!');
+        console.log('Email sent!');
     } catch (error) {
-        console.error('Error bij het verzenden van de bevestigingsmail:', error);
-        throw new Error('Bevestigingsmail niet verzonden');
+        console.error('Error while sending the confirmation email:', error);
+        throw new Error('Confirmation email not sent.');
     }
 }
 
@@ -114,23 +114,23 @@ async function sendEndScores(user, score, winner) {
             emailParams = new EmailParams()
                 .setFrom(sentFrom)
                 .setTo(recipients)
-                .setSubject("Einde van wedstrijd")
-                .setHtml('De wedstrijd is afgelopen, je hebt verloren! \n' +
-                    'Jouw eindscore: ' + score);
+                .setSubject("End of contest")
+                .setHtml('The contest has ended, you lost! :( \n' +
+                    'Your score: ' + score);
         } else {
             emailParams = new EmailParams()
                 .setFrom(sentFrom)
                 .setTo(recipients)
-                .setSubject("Einde van wedstrijd")
-                .setHtml('De wedstrijd is afgelopen, je hebt gewonnen! \n' +
-                    'Jouw eindscore: ' + score);
+                .setSubject("End of contest")
+                .setHtml('The contest has ended, you won! :) \n' +
+                    'Your score: ' + score);
         }
 
         await mailersend.email.send(emailParams);
-        console.log('Email verzonden!');
+        console.log('Email sent!');
     } catch (error) {
-        console.error('Error bij het verzenden van de score mail:', error);
-        throw new Error('Eindscore mail niet verzonden');
+        console.error('Error while sending the score mail:', error);
+        throw new Error('Score mail not sent');
     }
 }
 
@@ -141,20 +141,20 @@ async function sendScoresToOwner(user, winnerUsername, winnerScore, losers) {
 
         let losersHtml = '';
         for (const loser of losers) {
-            losersHtml += `[gebruikersnaam: ${loser.username}, score: ${loser.score}] <br>`;
+            losersHtml += `[username: ${loser.username}, score: ${loser.score}] <br>`;
         }
 
         const emailParams = new EmailParams()
             .setFrom(sentFrom)
             .setTo(recipients)
-            .setSubject("Einde van wedstrijd")
-            .setHtml(`De wedstrijd is afgelopen! \n De winnaar: [gebruikersnaam: ${winnerUsername}, score: ${winnerScore}] \n De verliezers: ${losersHtml}`)
+            .setSubject("End of contest")
+            .setHtml(`The contest has ended! \n The winner: [username: ${winnerUsername}, score: ${winnerScore}] \n The losers: ${losersHtml}`)
 
         await mailersend.email.send(emailParams);
-        console.log('Email verzonden!');
+        console.log('Email sent!');
     } catch (error) {
-        console.error('Error bij het verzenden van de score mail:', error);
-        throw new Error('Eindscore mail niet verzonden');
+        console.error('Error while sending the score mail to the targetOwner:', error);
+        throw new Error('Score mail not sent to targetOwner.');
     }
 }
 

@@ -26,7 +26,7 @@ async function connectToRabbitMQ() {
         await channel.assertQueue(SubmissionUpdateQueueName, { durable: true });
         await channel.bindQueue(SubmissionUpdateQueueName, SubmissionUpdateExchangeName, SubmissionUpdateRoutingKey);
 
-        console.log('Verbonden met RabbitMQ queue');
+        console.log('Connected to RabbitMQ queue');
     } catch (error) {
         console.error('Error connecting to RabbitMQ:', error);
     }
@@ -38,12 +38,12 @@ router.put('/update-score', async (req, res) => {
 
         let submission = await Submission.findById( new ObjectId(submissionId) )
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission niet gevonden' });
+            return res.status(404).json({ msg: 'Submission not found.' });
         }
 
         let contest = await Contest.findById(submission.contest)
         if (!contest) {
-            return res.status(403).json({ msg: 'Contest niet gevonden' });
+            return res.status(403).json({ msg: 'Contest not found.' });
         }
 
         if (submission.image && contest.image) {
@@ -102,7 +102,7 @@ router.put('/update-score', async (req, res) => {
             }
 
             if (percentageMatch === 100) {
-                return res.status(404).json({ msg: 'Je mag niet hetzelde plaatje uploaden als de target image, valsspeler >:(' });
+                return res.status(404).json({ msg: 'You are not allowed to upload the same image as the target image, cheater >:(' });
             }
 
             const roundedPercentageMatch = parseFloat(percentageMatch.toFixed(2));
@@ -119,13 +119,13 @@ router.put('/update-score', async (req, res) => {
                 console.log('RabbitMQ channel is not available. Message not sent');
             }
 
-            res.json({ msg: 'Submission succesvol geüpdate'});
+            res.json({ msg: 'Submission successfully updated'});
         } else {
-            return res.status(400).json({ msg: 'Contest of submission heeft npg geen target image' });
+            return res.status(400).json({ msg: 'Contest of submission does not have a target image yet' });
         }
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Serverfout');
+        res.status(500).send('Server error');
     }
 });
 
