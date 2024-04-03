@@ -437,254 +437,6 @@
         ]
       }
     },
-    "/register-for-contest": {
-      "post": {
-        "summary": "Register for a contest as a participant.",
-        "description": "Here you can enter your submission for a contest.",
-        "tags": ["submissions - participant"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "contestId": {
-                    "type": "string",
-                    "description": "Id of the contest you want to register for."
-                  }
-                },
-                "required": ["contestId"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully entered the contest.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "msg": {
-                      "type": "string",
-                      "description": "You successfully entered the contest. To add a submission picture, use the /update-submission route."
-                    },
-                    "submissionId": {
-                      "type": "string",
-                      "description": "The id of the submission that has been created. Needed when updating said submission."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid contest data.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Something went wrong with the contest data."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "An internal server error occurred."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/update-submission": {
-      "put": {
-        "summary": "Update your submission.",
-        "description": "Here you can update your submission for a contest by uploading a picture.",
-        "tags": [
-          "submissions - participant"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "submissionId": {
-                    "type": "string",
-                    "description": "Id of the submission you'd like to upload a picture to."
-                  },
-                  "image": {
-                    "type": "string",
-                    "format": "base64",
-                    "description": "The target picture."
-                  }
-                },
-                "required": ["submissionId", "image"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successfully updated your submission for the contest.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "msg": {
-                      "type": "string",
-                      "description": "You successfully updated your submission for the contest."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid submission data.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "Something went wrong with the submission data."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "description": "An internal server error occurred."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/delete-submission": {
-      "delete": {
-        "summary": "Delete an existing submission.",
-        "description": "Deleting an existing submission.",
-        "tags": ["submissions - participant"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "submissionId": {
-                    "type": "string",
-                    "description": "The id of the submission you'd like to delete."
-                  }
-                },
-                "required": ["submissionId"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Submission deleted successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "msg": {
-                      "type": "string",
-                      "description": "The submission has been deleted successfully."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid submission data.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "msg": {
-                      "type": "string",
-                      "description": "Something went wrong while deleting the submission."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server error.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "msg": {
-                      "type": "string",
-                      "description": "An internal server error occurred."
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
-      }
-    },
     "/vote-for-contest": {
       "put": {
         "summary": "Vote for a contest.",
@@ -939,6 +691,532 @@
                     "msg": {
                       "type": "string",
                       "description": "Something went wrong while getting the remaining contest time."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/delete-submission-as-owner": {
+      "delete": {
+        "summary": "Delete an existing submission.",
+        "description": "Deleting an existing submission of one of your contests.",
+        "tags": ["submissions - owner"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "submissionId": {
+                    "type": "string",
+                    "description": "The id of the submission you'd like to delete."
+                  }
+                },
+                "required": ["submissionId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The submission has been deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid submission data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while deleting the submission."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/get-all-submissions": {
+      "get": {
+        "summary": "Get all submissions.",
+        "description": "Get an overview of all submissions (with scores) for your contest.",
+        "tags": ["submissions - owner"],
+        "parameters": [
+          {
+            "name": "contestId",
+            "in": "query",
+            "description": "Id of the contest you'd like to view the submissions of.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of contests per page.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submissions retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string"
+                      },
+                      "contest": {
+                        "type": "string",
+                        "description": "Contest id of the contest."
+                      },
+                      "participant": {
+                        "type": "string",
+                        "description": "User id of the participant."
+                      },
+                      "image": {
+                        "type": "string",
+                        "description": "Submission image url."
+                      },
+                      "score": {
+                        "type": "number",
+                        "description": "Submission score."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting submissions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while getting the submissions."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/register-for-contest": {
+      "post": {
+        "summary": "Register for a contest as a participant.",
+        "description": "Here you can enter your submission for a contest.",
+        "tags": ["submissions - participant"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "contestId": {
+                    "type": "string",
+                    "description": "Id of the contest you want to register for."
+                  }
+                },
+                "required": ["contestId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully entered the contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "You successfully entered the contest. To add a submission picture, use the /update-submission route."
+                    },
+                    "submissionId": {
+                      "type": "string",
+                      "description": "The id of the submission that has been created. Needed when updating said submission."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid contest data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Something went wrong with the contest data."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/update-submission": {
+      "put": {
+        "summary": "Update your submission.",
+        "description": "Here you can update your submission for a contest by uploading a picture.",
+        "tags": [
+          "submissions - participant"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "submissionId": {
+                    "type": "string",
+                    "description": "Id of the submission you'd like to upload a picture to."
+                  },
+                  "image": {
+                    "type": "string",
+                    "format": "base64",
+                    "description": "The target picture."
+                  }
+                },
+                "required": ["submissionId", "image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully updated your submission for the contest.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "You successfully updated your submission for the contest."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid submission data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Something went wrong with the submission data."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/delete-submission": {
+      "delete": {
+        "summary": "Delete an existing submission.",
+        "description": "Deleting an existing submission.",
+        "tags": ["submissions - participant"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "submissionId": {
+                    "type": "string",
+                    "description": "The id of the submission you'd like to delete."
+                  }
+                },
+                "required": ["submissionId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Submission deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "The submission has been deleted successfully."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid submission data.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while deleting the submission."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "An internal server error occurred."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/get-submission": {
+      "get": {
+        "summary": "Get your submission.",
+        "description": "Get an overview of your submission, including score.",
+        "tags": ["submissions - participant"],
+        "parameters": [
+          {
+            "name": "submissionId",
+            "in": "query",
+            "description": "Id of the submission you'd like to view.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Submission retrieved successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "contest": {
+                      "type": "string",
+                      "description": "Contest id of the contest."
+                    },
+                    "participant": {
+                      "type": "string",
+                      "description": "User id of the participant."
+                    },
+                    "image": {
+                      "type": "string",
+                      "description": "Submission image url."
+                    },
+                    "score": {
+                      "type": "number",
+                      "description": "Submission score."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error getting submission.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "msg": {
+                      "type": "string",
+                      "description": "Something went wrong while getting the submission."
                     }
                   }
                 }

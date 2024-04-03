@@ -116,6 +116,23 @@ router.post('/create', verifyToken, async (req, res) => {
             return res.status(401).json({msg: 'Je hebt niet de juiste rechten om een wedstrijd aan te maken'})
         }
 
+        const oneHourInMillis = 60 * 60 * 1000; // 1 uur in milliseconden
+        const twoYearsInMillis = 2 * 365 * 24 * 60 * 60 * 1000; // 2 jaar in milliseconden
+
+        // Huidige tijd in UTC
+        const currentUTCMillis = new Date().getTime();
+
+        const minEndTime = currentUTCMillis + oneHourInMillis;
+        const maxEndTime = currentUTCMillis + twoYearsInMillis;
+
+        const endTimeMillis = new Date(endTime).getTime();
+
+        if (endTimeMillis < minEndTime || endTimeMillis > maxEndTime) {
+            return res.status(400).json({
+                msg: 'Onjuiste endTime, endTime moet minimaal 1 uur in de toekomst en maximaal 2 jaar in de toekomst zijn.'
+            });
+        }
+
         let contest = new Contest({
             owner: user,
             description,
@@ -407,6 +424,60 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
     }
 });
 
+router.delete('/deleteSubmissionAsOwner', verifyToken, async (req, res) => {
+    try {
+        const { submissionId } = req.body;
+        let username = req.body.user
+
+        let submission = await Submission.findById( new ObjectId(submissionId) )
+        let user = await User.findOne({ username });
+
+        if (!user) {
+            return res.status(400).json({ msg: 'User not found.' });
+        }
+
+        if (!submission) {
+            return res.status(404).json({ msg: 'Submission not found.' });
+        }
+
+        let contest = await Contest.findById(submission.contest)
+        if (!contest) {
+            return res.status(404).json({ msg: 'Contest not found.' });
+        }
+
+        let owner = await User.findById(contest.owner)
+        if (!owner) {
+            return res.status(404).json({ msg: 'Contest owner not found.' });
+        }
+
+        if (user.role !== 'targetOwner' || user.username !== owner.username) {
+            return res.status(401).json({msg: 'Je hebt niet de juiste rechten om deze submission te verwijderen'})
+        }
+
+        if (submission.image) {
+            const oldImagePath = path.join(__dirname, '../uploads', path.basename(submission.image));
+            fs.unlinkSync(oldImagePath);
+        }
+
+        await Submission.deleteOne({ _id: submissionId });
+
+        if (channel) {
+            const exchangeName = 'submission_deleted_exchange';
+            const routingKey = 'submission.deleted';
+            const message = JSON.stringify(submission);
+            channel.publish(exchangeName, routingKey, Buffer.from(message), { persistent: true });
+            console.log('Submission deleted message sent to RabbitMQ');
+        } else {
+            console.log('RabbitMQ channel is not available. Message not sent');
+        }
+
+        res.json({ msg: 'Submission succesvol verwijderd' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Serverfout');
+    }
+});
+
 router.put('/vote', verifyToken, async (req, res) => {
     try {
         const { contestId, thumbsUp } = req.body;
@@ -417,7 +488,7 @@ router.put('/vote', verifyToken, async (req, res) => {
             return res.status(400).json({ msg: 'Gebruiker bestaat niet' });
         }
 
-        if(user.role !== 'participant') {
+        if (user.role !== 'participant') {
             return res.status(401).json({ msg: 'Je hebt niet de juiste rechten om je in te schrijven voor een wedstrijd' });
         }
 
@@ -453,6 +524,54 @@ router.put('/vote', verifyToken, async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Serverfout');
+    }
+});
+
+router.get('/getSubmission', verifyToken, async (req, res) => {
+    try {
+        const { submissionId } = req.query;
+        let username = req.body.user
+
+        const submission = await Submission.findById(submissionId);
+        if (!submission) {
+            return res.status(404).json({ msg: 'Submission not found.' });
+        }
+
+        const user = await User.findById({ _id: submission.participant });
+        if (!user || username !== user.username ) {
+            return res.status(404).json({ msg: 'Invalid user.' });
+        }
+
+        res.json(submission);
+    } catch (error) {
+        console.error('Fout bij het ophalen van submission:', error);
+        res.status(500).json({ msg: 'Serverfout bij het ophalen van submission' });
+    }
+});
+
+router.get('/getAllSubmissions', verifyToken, async (req, res) => {
+    try {
+        const { contestId, page = 1, limit = 10 } = req.query;
+        let username = req.body.user
+
+        const contest = await Contest.findById(contestId);
+        if (!contest) {
+            return res.status(404).json({ msg: 'Contest not found.' });
+        }
+
+        const user = await User.findById({ _id: contest.owner });
+        if (!user || username !== user.username ) {
+            return res.status(404).json({ msg: 'Invalid user.' });
+        }
+
+        const submissions = await Submission.find({ contest: contestId })
+            .skip((page - 1) * limit)
+            .limit(limit);
+
+        res.json(submissions);
+    } catch (error) {
+        console.error('Fout bij het ophalen van alle submissions:', error);
+        res.status(500).json({ msg: 'Serverfout bij het ophalen van submissions' });
     }
 });
 

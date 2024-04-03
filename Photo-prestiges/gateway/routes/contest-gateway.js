@@ -132,6 +132,24 @@ router.delete('/delete-submission', verifyTokenParticipant, (req, res) => {
         });
 });
 
+router.delete('/delete-submission-as-owner', verifyTokenTarget, (req, res) => {
+    let submissionData = req.body;
+    if (!submissionData || !submissionData.submissionId) {
+        return res.status(400).send('Ongeldige gegevens voor het verwijderen van een submission.');
+    }
+
+    submissionData.user = req.user.username;
+
+    contestCB.fire('delete', contestService, '/contests/deleteSubmissionAsOwner', submissionData, gatewayToken)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het verwijderen van een submission:', error);
+            res.status(500).send('Er is een fout opgetreden bij het verwijderen van een submission.');
+        });
+});
+
 router.put('/vote-for-contest', verifyTokenParticipant, (req, res) => {
     let contestData = req.body;
     if (!contestData || !contestData.contestId) {
@@ -147,6 +165,44 @@ router.put('/vote-for-contest', verifyTokenParticipant, (req, res) => {
         .catch(error => {
             console.error('Fout bij het stemmen voor een wedstrijd:', error);
             res.status(500).send('Er is een fout opgetreden bij het stemmen voor een wedstrijd.');
+        });
+});
+
+router.get('/get-submission', verifyTokenParticipant, (req, res) => {
+    const { submissionId } = req.query;
+    if (!submissionId) {
+        return res.status(400).send('You have to give along a submissionId.');
+    }
+
+    let submissionData = req.body;
+    submissionData.user = req.user.username;
+
+    contestCB.fire('get', contestService, `/contests/getSubmission?submissionId=${submissionId}`, submissionData)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het ophalen van submission:', error);
+            res.status(500).send('Er is een fout opgetreden bij het ophalen van de submission.');
+        });
+});
+
+router.get('/get-all-submissions', verifyTokenTarget, (req, res) => {
+    const { contestId, page = 1, limit = 10 } = req.query;
+    if (!contestId) {
+        return res.status(400).send('You have to give along a contestId.');
+    }
+
+    let contestData = req.body;
+    contestData.user = req.user.username;
+
+    contestCB.fire('get', contestService, `/contests/getAllSubmissions?contestId=${contestId}&page=${page}&limit=${limit}`, contestData)
+        .then(response => {
+            res.send(response);
+        })
+        .catch(error => {
+            console.error('Fout bij het ophalen van de submissions:', error);
+            res.status(500).send('Er is een fout opgetreden bij het ophalen van de submissions.');
         });
 });
 
