@@ -42,6 +42,7 @@ async function connectToRabbitMQUserCreate() {
                     const hashedPassword = isPasswordHashed ? user.password : await bcrypt.hash(user.password, 10);
 
                     const newUser = new User({
+                        _id: user._id.toString(),
                         username: user.username,
                         email: user.email,
                         password: hashedPassword,
@@ -144,7 +145,7 @@ async function connectAndProcessMessages() {
     await connectSubmissionScoreUpdate();
 }
 
-await connectAndProcessMessages();
+connectAndProcessMessages();
 
 // Start de server
 const PORT = process.env.PORT || 7000;

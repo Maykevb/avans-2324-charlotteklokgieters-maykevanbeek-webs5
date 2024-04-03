@@ -173,10 +173,9 @@ async function connectAndProcessContestVotingUpdate() {
                         return;
                     }
 
-                    if (contestData.thumbsUp !== undefined && contestData.thumbsUp) {
-                        contest.thumbsUp += contest.thumbsUp
-                    } else if (contestData.thumbsUp !== undefined) {
-                        contest.thumbsDown += contest.thumbsDown
+                    if (contestData.thumbsUp !== undefined && contestData.thumbsDown !== undefined) {
+                        contest.thumbsUp = contestData.thumbsUp
+                        contest.thumbsDown = contestData.thumbsDown
                     }
 
                     await contest.save();
@@ -238,8 +237,8 @@ async function connectAndProcessMessages() {
     await connectAndProcessContestVotingUpdate();
 }
 
-await connectAndProcessMessages();
-await checkExpiredContests();
+connectAndProcessMessages();
+checkExpiredContests();
 setInterval(checkExpiredContests, 5 * 60 * 1000);
 
 // Start de server

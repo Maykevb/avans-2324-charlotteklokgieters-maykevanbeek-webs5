@@ -431,10 +431,10 @@ router.put('/vote', verifyToken, async (req, res) => {
             return res.status(400).json({ msg: 'Je doet momenteel niet mee aan deze wedstrijd' });
         }
 
-        if (thumbsUp === "true") {
-            contest.thumbsUp += contest.thumbsUp
+        if (thumbsUp) {
+            contest.thumbsUp = contest.thumbsUp + 1
         } else {
-            contest.thumbsDown += contest.thumbsDown
+            contest.thumbsDown = contest.thumbsDown + 1
         }
 
         await contest.save();

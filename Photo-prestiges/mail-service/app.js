@@ -40,6 +40,7 @@ async function connectToRabbitMQUserCreate() {
                     const hashedPassword = isPasswordHashed ? user.password : await bcrypt.hash(user.password, 10);
 
                     const newUser = new User({
+                        _id: user._id.toString(),
                         username: user.username,
                         email: user.email,
                         password: hashedPassword,
@@ -68,7 +69,7 @@ async function connectAndProcessUpdateContestStatus() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_status_exchange';
-        const updateQueueName = 'mail_send_score_queue';
+        const updateQueueName = 'mail_send_score_to_users_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -77,10 +78,10 @@ async function connectAndProcessUpdateContestStatus() {
         channel.consume(updateQueueName, async (message) => {
             if (message) {
                 try {
-                    const contestData = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+                    const content = JSON.parse(message.content.toString());
+                    console.log('Ontvangen bericht over de wedstrijdstatus:', content);
 
-                    const contestId = contestData._id;
+                    const contestId = content.contestId;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
@@ -88,13 +89,15 @@ async function connectAndProcessUpdateContestStatus() {
                         return;
                     }
 
-                    const { statusOpen } = contestData;
-                    if (statusOpen !== undefined) contest.statusOpen = statusOpen;
+                    if (content.status !== undefined && content.status !== null && content.status !== '') {
+                        contest.statusOpen = content.status;
+                    }
 
                     await contest.save();
 
-                    if (statusOpen !== undefined && !statusOpen) {
-                        await sendEndScore(contestId)
+                    if (contest.statusOpen !== undefined && !contest.statusOpen) {
+                        // TODO
+                        // await sendEndScore(contestId)
                     }
 
                     console.log('Wedstrijd succesvol bijgewerkt:', contest);
@@ -328,7 +331,7 @@ async function connectAndDeleteContests() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_delete_exchange';
-        const updateQueueName = 'clock_delete_contest_queue';
+        const updateQueueName = 'mail_delete_contest_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -368,7 +371,7 @@ async function connectAndDeleteSubmissions() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'submission_deleted_exchange';
-        const updateQueueName = 'clock_delete_submission_queue';
+        const updateQueueName = 'mail_delete_submission_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -407,7 +410,7 @@ async function connectAndProcessContestVotingUpdate() {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_voting_exchange';
-        const updateQueueName = 'clock_contest_votes_queue';
+        const updateQueueName = 'mail_contest_votes_queue';
 
         await channel.assertExchange(updateExchangeName, 'direct', { durable: true });
         await channel.assertQueue(updateQueueName, { durable: true });
@@ -427,10 +430,9 @@ async function connectAndProcessContestVotingUpdate() {
                         return;
                     }
 
-                    if (contestData.thumbsUp !== undefined && contestData.thumbsUp) {
-                        contest.thumbsUp += contest.thumbsUp
-                    } else if (contestData.thumbsUp !== undefined) {
-                        contest.thumbsDown += contest.thumbsDown
+                    if (contestData.thumbsUp !== undefined && contestData.thumbsDown !== undefined) {
+                        contest.thumbsUp = contestData.thumbsUp
+                        contest.thumbsDown = contestData.thumbsDown
                     }
 
                     await contest.save();
@@ -483,7 +485,7 @@ async function connectAndProcessMessages() {
     await connectAndProcessContestVotingUpdate();
 }
 
-await connectAndProcessMessages();
+connectAndProcessMessages();
 
 // Start de server
 const PORT = process.env.PORT || 6000;

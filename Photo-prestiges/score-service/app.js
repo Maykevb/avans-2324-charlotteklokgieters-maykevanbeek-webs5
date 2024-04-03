@@ -63,8 +63,8 @@ async function connectToRabbitMQUpdateSubmission() {
     try {
         const connection = await amqp.connect('amqp://localhost');
         const channel = await connection.createChannel();
-        const exchangeName = 'submission_exchange';
-        const queueName = 'score_service_queue';
+        const exchangeName = 'update_submission_exchange';
+        const queueName = 'score_service_submission_update_queue';
 
         // Verbind de queue met de exchange en routing key
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
@@ -161,10 +161,10 @@ async function connectAndProcessUpdateContestStatus() {
         channel.consume(updateQueueName, async (message) => {
             if (message) {
                 try {
-                    const contestData = JSON.parse(message.content.toString());
-                    console.log('Ontvangen bijgewerkte wedstrijd:', contestData);
+                    const content = JSON.parse(message.content.toString());
+                    console.log('Ontvangen bericht over de wedstrijdstatus:', content);
 
-                    const contestId = contestData._id;
+                    const contestId = content.contestId;
                     const contest = await Contest.findById(contestId);
 
                     if (!contest) {
@@ -172,8 +172,9 @@ async function connectAndProcessUpdateContestStatus() {
                         return;
                     }
 
-                    const { statusOpen } = contestData;
-                    if (statusOpen !== undefined) contest.statusOpen = statusOpen;
+                    if (content.status !== undefined && content.status !== null && content.status !== '') {
+                        contest.statusOpen = content.status;
+                    }
 
                     await contest.save();
                     console.log('Wedstrijd succesvol bijgewerkt:', contest);
@@ -333,10 +334,9 @@ async function connectAndProcessContestVotingUpdate() {
                         return;
                     }
 
-                    if (contestData.thumbsUp !== undefined && contestData.thumbsUp) {
-                        contest.thumbsUp += contest.thumbsUp
-                    } else if (contestData.thumbsUp !== undefined) {
-                        contest.thumbsDown += contest.thumbsDown
+                    if (contestData.thumbsUp !== undefined && contestData.thumbsDown !== undefined) {
+                        contest.thumbsUp = contestData.thumbsUp
+                        contest.thumbsDown = contestData.thumbsDown
                     }
 
                     await contest.save();
@@ -376,7 +376,7 @@ async function connectAndProcessMessages() {
     await connectAndProcessContestVotingUpdate();
 }
 
-await connectAndProcessMessages();
+connectAndProcessMessages();
 
 // Het opstarten van de server
 const PORT = process.env.PORT || 10000;
