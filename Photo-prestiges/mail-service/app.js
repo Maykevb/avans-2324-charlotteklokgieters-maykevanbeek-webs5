@@ -9,6 +9,7 @@ const Contest = require('./models/Contest')
 const Submission = require('./models/Submission')
 const app = express();
 const axios = require('axios');
+const gatewayToken = process.env.GATEWAY_TOKEN
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -453,9 +454,14 @@ async function connectAndProcessContestVotingUpdate() {
 
 // Function to call mail service for sending confirmation email
 async function sendConfirmationEmail(email, username, password) {
+    const headers = {
+        'Gateway': gatewayToken,
+        'Content-Type': 'application/json'
+    };
+
     try {
         // Make a POST request to the mail service endpoint
-        await axios.post('http://localhost:6000/confirmation/registration', { username, email, password });
+        await axios.post('http://localhost:6000/confirmation/registration', { username, email, password }, { headers });
         console.log('Confirmation email request sent to mail service');
     } catch (error) {
         console.error('Error sending confirmation email request to mail service:', error);
@@ -464,9 +470,14 @@ async function sendConfirmationEmail(email, username, password) {
 }
 
 async function sendEndScore(contestId) {
+    const headers = {
+        'Gateway': gatewayToken,
+        'Content-Type': 'application/json'
+    };
+
     try {
         // Make a POST request to the mail service endpoint
-        await axios.post('http://localhost:6000/confirmation/end-of-contest', { contestId });
+        await axios.post('http://localhost:6000/confirmation/end-of-contest', { contestId }, { headers });
         console.log('Endscore email request sent to mail service');
     } catch (error) {
         console.error('Error sending endscore email request to mail service:', error);

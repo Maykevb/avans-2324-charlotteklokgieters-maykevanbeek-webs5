@@ -32,7 +32,7 @@ async function connectToRabbitMQ() {
     }
 }
 
-router.put('/update-score', async (req, res) => {
+router.put('/update-score', verifyToken, async (req, res) => {
     try {
         const { submissionId } = req.body;
 
@@ -128,6 +128,20 @@ router.put('/update-score', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+// Middleware to check if the request is from the gateway
+function verifyToken(req, res, next) {
+    const token = req.header('Gateway');
+
+    if (!token || token !== gatewayToken) {
+        console.log('Unauthorized access detected.');
+        return res.status(401).json({ msg: 'Unauthorized access.' });
+    } else {
+        console.log('Access granted.');
+    }
+
+    next();
+}
 
 connectToRabbitMQ();
 
