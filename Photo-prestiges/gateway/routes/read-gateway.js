@@ -17,9 +17,6 @@ const readCB = new CircuitBreaker(callService, options);
 router.get('/get-contests', verifyToken, (req, res) => {
     const { page = 1, limit = 10, statusOpen = true } = req.query;
 
-    console.log(page)
-    console.log(limit)
-    console.log(statusOpen)
     readCB.fire('get', readService, `/read/get?page=${page}&limit=${limit}&statusOpen=${statusOpen}`)
         .then(response => {
             res.send(response);
@@ -30,12 +27,14 @@ router.get('/get-contests', verifyToken, (req, res) => {
         });
 });
 
-function verifyToken(req, res) {
+function verifyToken(req, res, next) {
     const token = req.header('authorization');
 
     if (!token) {
         return res.status(401).send('Geen JWT-token verstrekt');
     }
+
+    next();
 }
 
 function callService(method, serviceAddress, resource, data) {

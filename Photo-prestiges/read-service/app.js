@@ -7,7 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/contests', readRoutes);
+app.use('/read', readRoutes);
 
 // MongoDB-verbinding
 mongoose.connect('mongodb://localhost:27017/read-service')
