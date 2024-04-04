@@ -113,7 +113,7 @@ router.post('/create', verifyToken, async (req, res) => {
         }
 
         if (user.role !== 'targetOwner') {
-            return res.status(401).json({msg: 'Invalid role for creating a contest.'})
+            return res.status(403).json({msg: 'Invalid role for creating a contest.'})
         }
 
         const oneHourInMillis = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -128,15 +128,14 @@ router.post('/create', verifyToken, async (req, res) => {
         const endTimeMillis = new Date(endTime).getTime();
 
         if (endTimeMillis < minEndTime || endTimeMillis > maxEndTime) {
-            return res.status(400).json({
-                msg: 'Incorrect endTime, endTime has to be at least 1 hour in the future and max 2 years in the future.'
-            });
+            return res.status(400).json({ msg: 'Incorrect endTime, endTime has to be at least 1 hour in the future and max 2 years in the future.' });
         }
 
         let contest = new Contest({
             owner: user,
             description,
-            endTime
+            endTime,
+            startTime: currentUTCMillis
         });
 
         await contest.save();
@@ -176,7 +175,7 @@ router.put('/updateContest', verifyToken, upload.single('image'), async (req, re
 
         let owner = await User.findById(contest.owner)
         if (user.role !== 'targetOwner' || user.username !== owner.username) {
-            return res.status(401).json({msg: 'Invalid credentials for updating this contest.'})
+            return res.status(403).json({msg: 'Invalid credentials for updating this contest.'})
         }
 
         if (!image || !image.buffer) {
@@ -231,7 +230,7 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
         let user = await User.findOne({ username })
 
         if (!contest) {
-            return res.status(404).json({ msg: 'Contest not found.' });
+            return res.status(400).json({ msg: 'Contest not found.' });
         }
 
         if (!user) {
@@ -240,7 +239,7 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
 
         let owner = await User.findById(contest.owner)
         if (user.username !== owner.username) {
-            return res.status(401).json({ msg: 'Invalid role for deleting this contest' });
+            return res.status(403).json({ msg: 'Invalid role for deleting this contest' });
         }
 
         if (contest.image) {
@@ -279,12 +278,16 @@ router.post('/register', verifyToken, async (req, res) => {
         }
 
         if (user.role !== 'participant') {
-            return res.status(401).json({ msg: 'Invalid role for entering a contest.' });
+            return res.status(403).json({ msg: 'Invalid role for entering a contest.' });
         }
 
         let contest = await Contest.findById(contestId);
         if (!contest) {
             return res.status(400).json({ msg: 'No contest with this ID found.'})
+        }
+
+        if (!contest.statusOpen) {
+            return res.status(400).json({ msg: 'The status of this contest is closed, it has already ended.'})
         }
 
         const existingSubmission = await Submission.findOne({ contest: contestId, participant: user._id });
@@ -329,12 +332,12 @@ router.put('/updateSubmission', verifyToken, upload.single('image'), async (req,
         }
 
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission not found.' });
+            return res.status(400).json({ msg: 'Submission not found.' });
         }
 
         let participant = await User.findById(submission.participant)
         if (user.role !== 'participant' || user.username !== participant.username) {
-            return res.status(401).json({msg: 'Invalid credentials for updating this submission'})
+            return res.status(403).json({msg: 'Invalid credentials for updating this submission'})
         }
 
         if (!image || !image.buffer) {
@@ -392,12 +395,12 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
         }
 
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission not found.' });
+            return res.status(400).json({ msg: 'Submission not found.' });
         }
 
         let participant = await User.findById(submission.participant)
         if (user.role !== 'participant' || user.username !== participant.username) {
-            return res.status(401).json({msg: 'Invalid credentials for deleting this submission.'})
+            return res.status(403).json({msg: 'Invalid credentials for deleting this submission.'})
         }
 
         if (submission.image) {
@@ -437,21 +440,21 @@ router.delete('/deleteSubmissionAsOwner', verifyToken, async (req, res) => {
         }
 
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission not found.' });
+            return res.status(400).json({ msg: 'Submission not found.' });
         }
 
         let contest = await Contest.findById(submission.contest)
         if (!contest) {
-            return res.status(404).json({ msg: 'Contest not found.' });
+            return res.status(400).json({ msg: 'Contest not found.' });
         }
 
         let owner = await User.findById(contest.owner)
         if (!owner) {
-            return res.status(404).json({ msg: 'Contest owner not found.' });
+            return res.status(400).json({ msg: 'Contest owner not found.' });
         }
 
         if (user.role !== 'targetOwner' || user.username !== owner.username) {
-            return res.status(401).json({msg: 'Invalid credentials for deleting this submission'})
+            return res.status(403).json({msg: 'Invalid credentials for deleting this submission'})
         }
 
         if (submission.image) {
@@ -489,7 +492,7 @@ router.put('/vote', verifyToken, async (req, res) => {
         }
 
         if (user.role !== 'participant') {
-            return res.status(401).json({ msg: 'Invalid role for voting for a contest.' });
+            return res.status(403).json({ msg: 'Invalid role for voting for a contest.' });
         }
 
         let contest = await Contest.findById(contestId);
@@ -499,7 +502,7 @@ router.put('/vote', verifyToken, async (req, res) => {
 
         const existingSubmission = await Submission.findOne({ contest: contestId, participant: user._id });
         if (!existingSubmission) {
-            return res.status(400).json({ msg: 'You are currently not participating in this contest.' });
+            return res.status(403).json({ msg: 'You are currently not participating in this contest.' });
         }
 
         if (thumbsUp) {
@@ -534,12 +537,12 @@ router.get('/getSubmission', verifyToken, async (req, res) => {
 
         const submission = await Submission.findById(submissionId);
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission not found.' });
+            return res.status(400).json({ msg: 'Submission not found.' });
         }
 
         const user = await User.findById({ _id: submission.participant });
         if (!user || username !== user.username ) {
-            return res.status(404).json({ msg: 'Invalid user.' });
+            return res.status(403).json({ msg: 'Invalid user.' });
         }
 
         res.json(submission);
@@ -556,12 +559,12 @@ router.get('/getAllSubmissions', verifyToken, async (req, res) => {
 
         const contest = await Contest.findById(contestId);
         if (!contest) {
-            return res.status(404).json({ msg: 'Contest not found.' });
+            return res.status(400).json({ msg: 'Contest not found.' });
         }
 
         const user = await User.findById({ _id: contest.owner });
         if (!user || username !== user.username ) {
-            return res.status(404).json({ msg: 'Invalid user.' });
+            return res.status(403).json({ msg: 'Invalid user.' });
         }
 
         const submissions = await Submission.find({ contest: contestId })

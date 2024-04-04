@@ -24,7 +24,7 @@ router.post('/login', verifyToken, async (req, res) => {
 
         const secretKey = checkRole(user.role);
         if (!secretKey) {
-            return res.status(422).json({ msg: 'User has van invalid role.' });
+            return res.status(403).json({ msg: 'User has van invalid role.' });
         }
 
         const payload = {
