@@ -11,6 +11,7 @@ const axios = require('axios');
 const amqp = require('amqplib');
 const fs = require('fs');
 const FormData = require('form-data');
+const gatewayToken = process.env.GATEWAY_TOKEN
 
 async function connectToRabbitMQ() {
     try {
@@ -107,7 +108,7 @@ router.put('/update-score', verifyToken, async (req, res) => {
 
             const currentTime = new Date().getTime();
             const timeDifferenceStart = Math.abs(contest.startTime - currentTime);
-            const timeScore = Math.max(0, Math.min(1, 1 - timeDifferenceStart / (submission.endTime - submission.startTime))) * 100;
+            const timeScore = Math.max(0, Math.min(1, 1 - timeDifferenceStart / (contest.endTime - contest.startTime))) * 100;
 
             // How close the image is will be 90% of the end score, the other 10% is based on how quick the submission was sent in
             const totalScore = 0.9 * percentageMatch + 0.1 * timeScore;

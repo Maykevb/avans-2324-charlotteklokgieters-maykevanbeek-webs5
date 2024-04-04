@@ -7,6 +7,7 @@ const Submission = require('../models/Submission')
 const User = require('../models/User')
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+const gatewayToken = process.env.GATEWAY_TOKEN
 const Recipient = require("mailersend").Recipient;
 const EmailParams = require("mailersend").EmailParams;
 const MailerSend = require("mailersend").MailerSend;
