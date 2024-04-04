@@ -16,7 +16,7 @@ const mailersend = new MailerSend({
 });
 
 // Route for registering a new user
-router.post('/registration', async (req, res) => {
+router.post('/registration', verifyToken, async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -30,7 +30,7 @@ router.post('/registration', async (req, res) => {
     }
 });
 
-router.post('/end-of-contest', async (req, res) => {
+router.post('/end-of-contest', verifyToken, async (req, res) => {
     try {
         const { contestId } = req.body;
 
@@ -156,6 +156,20 @@ async function sendScoresToOwner(user, winnerUsername, winnerScore, losers) {
         console.error('Error while sending the score mail to the targetOwner:', error);
         throw new Error('Score mail not sent to targetOwner.');
     }
+}
+
+// Middleware to check if the request is from the gateway
+function verifyToken(req, res, next) {
+    const token = req.header('Gateway');
+
+    if (!token || token !== gatewayToken) {
+        console.log('Unauthorized access detected.');
+        return res.status(401).json({ msg: 'Unauthorized access.' });
+    } else {
+        console.log('Access granted.');
+    }
+
+    next();
 }
 
 module.exports = router;

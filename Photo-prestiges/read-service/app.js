@@ -39,7 +39,11 @@ async function connectAndProcessCreateContest() {
                         description: contest.description,
                         place: contest.place,
                         image: contest.image,
-                        endTime: contest.endTime
+                        endTime: contest.endTime,
+                        startTime: contest.startTime,
+                        statusOpen: contest.statusOpen,
+                        thumbsUp: contest.thumbsUp,
+                        thumbsDown: contest.thumbsDown
                     });
 
                     await newContest.save();

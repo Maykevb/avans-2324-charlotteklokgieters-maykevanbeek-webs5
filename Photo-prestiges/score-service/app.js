@@ -9,6 +9,7 @@ const amqp = require('amqplib');
 const Submission = require('./models/Submission');
 const Contest = require('./models/Contest');
 const axios = require('axios');
+const gatewayToken = process.env.GATEWAY_TOKEN
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -216,7 +217,11 @@ async function connectToRabbitMQCreateContest() {
                         description: contest.description,
                         place: contest.place,
                         image: contest.image,
-                        endTime: contest.endTime
+                        endTime: contest.endTime,
+                        startTime: contest.startTime,
+                        statusOpen: contest.statusOpen,
+                        thumbsUp: contest.thumbsUp,
+                        thumbsDown: contest.thumbsDown
                     });
 
                     await newContest.save();
@@ -358,9 +363,14 @@ async function connectAndProcessContestVotingUpdate() {
 
 // Function to call score service for determining the score of the submission
 async function updateSubmissionScore(submissionId) {
+    const headers = {
+        'Gateway': gatewayToken,
+        'Content-Type': 'application/json'
+    };
+
     try {
         // Make a POST request to the score service endpoint
-        await axios.put('http://localhost:10000/scores/update-score', { submissionId });
+        await axios.put('http://localhost:10000/scores/update-score', { submissionId }, { headers });
         console.log('Score updated');
     } catch (error) {
         console.error('Error updating score:', error);

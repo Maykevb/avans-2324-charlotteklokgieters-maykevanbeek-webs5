@@ -32,25 +32,25 @@ async function connectToRabbitMQ() {
     }
 }
 
-router.put('/update-score', async (req, res) => {
+router.put('/update-score', verifyToken, async (req, res) => {
     try {
         const { submissionId } = req.body;
 
         let submission = await Submission.findById( new ObjectId(submissionId) )
         if (!submission) {
-            return res.status(404).json({ msg: 'Submission not found.' });
+            return res.status(400).json({ msg: 'Submission not found.' });
         }
 
         let contest = await Contest.findById(submission.contest)
         if (!contest) {
-            return res.status(403).json({ msg: 'Contest not found.' });
+            return res.status(400).json({ msg: 'Contest not found.' });
         }
 
         if (submission.image && contest.image) {
             const subImageUrl = submission.image;
             const conImageUrl = contest.image;
 
-            // scores[0] will be submission scores, scores[1] will be contest scores
+            // Scores[0] will be submission scores, scores[1] will be contest scores
             let urls = [subImageUrl, conImageUrl];
             let scores = [];
 
@@ -102,11 +102,18 @@ router.put('/update-score', async (req, res) => {
             }
 
             if (percentageMatch === 100) {
-                return res.status(404).json({ msg: 'You are not allowed to upload the same image as the target image, cheater >:(' });
+                return res.status(400).json({ msg: 'You are not allowed to upload the same image as the target image, cheater >:(' });
             }
 
-            const roundedPercentageMatch = parseFloat(percentageMatch.toFixed(2));
-            submission.score = roundedPercentageMatch
+            const currentTime = new Date().getTime();
+            const timeDifferenceStart = Math.abs(contest.startTime - currentTime);
+            const timeScore = Math.max(0, Math.min(1, 1 - timeDifferenceStart / (submission.endTime - submission.startTime))) * 100;
+
+            // How close the image is will be 90% of the end score, the other 10% is based on how quick the submission was sent in
+            const totalScore = 0.9 * percentageMatch + 0.1 * timeScore;
+            const roundedTotal = parseFloat(totalScore.toFixed(2));
+
+            submission.score = roundedTotal
             await submission.save();
 
             if (channel) {
@@ -128,6 +135,20 @@ router.put('/update-score', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+// Middleware to check if the request is from the gateway
+function verifyToken(req, res, next) {
+    const token = req.header('Gateway');
+
+    if (!token || token !== gatewayToken) {
+        console.log('Unauthorized access detected.');
+        return res.status(401).json({ msg: 'Unauthorized access.' });
+    } else {
+        console.log('Access granted.');
+    }
+
+    next();
+}
 
 connectToRabbitMQ();
 
