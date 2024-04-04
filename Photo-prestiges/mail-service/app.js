@@ -54,8 +54,7 @@ async function connectToRabbitMQUserCreate() {
 
                     console.log('User successfully saved to the database of the mail-service.');
 
-                    // TODO
-                    // await sendConfirmationEmail(user.email, user.username, user.password);
+                    await sendConfirmationEmail(user.email, user.username, user.password);
                 } catch (error) {
                     console.error('Error while saving the user:', error);
                 }
@@ -100,8 +99,7 @@ async function connectAndProcessUpdateContestStatus() {
                     await contest.save();
 
                     if (!contest.statusOpen) {
-                        // TODO
-                        // await sendEndScore(contest._id)
+                        await sendEndScore(contest._id)
                     }
 
                     console.log('Contest successfully updated:', contest);
