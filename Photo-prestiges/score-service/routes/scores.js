@@ -38,6 +38,10 @@ router.put('/update-score', verifyToken, async (req, res) => {
     try {
         const { submissionId } = req.body;
 
+        if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+            return res.status(400).json({ msg: 'Invalid submission ID.' });
+        }
+
         let submission = await Submission.findById( new ObjectId(submissionId) )
         if (!submission) {
             return res.status(400).json({ msg: 'Submission not found.' });

@@ -163,6 +163,10 @@ router.put('/updateContest', verifyToken, upload.single('image'), async (req, re
         const { id, place, image } = req.body;
         let username = req.body.user
 
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
+
         let contest = await Contest.findById( new ObjectId(id) )
         let user = await User.findOne({ username });
 
@@ -227,6 +231,10 @@ router.delete('/deleteContest', verifyToken, async (req, res) => {
         const { contestId } = req.body;
         let username = req.body.user
 
+        if (!mongoose.Types.ObjectId.isValid(contestId)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
+
         const contest = await Contest.findById(new ObjectId(contestId));
         let user = await User.findOne({ username })
 
@@ -282,6 +290,10 @@ router.post('/register', verifyToken, async (req, res) => {
             return res.status(403).json({ msg: 'Invalid role for entering a contest.' });
         }
 
+        if (!mongoose.Types.ObjectId.isValid(contestId)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
+
         let contest = await Contest.findById(contestId);
         if (!contest) {
             return res.status(400).json({ msg: 'No contest with this ID found.'})
@@ -324,6 +336,10 @@ router.put('/updateSubmission', verifyToken, upload.single('image'), async (req,
     try {
         const { submissionId, image } = req.body;
         let username = req.body.user
+
+        if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+            return res.status(400).json({ msg: 'Invalid submission ID.' });
+        }
 
         let submission = await Submission.findById( new ObjectId(submissionId) )
         let user = await User.findOne({ username });
@@ -388,6 +404,10 @@ router.delete('/deleteSubmission', verifyToken, async (req, res) => {
         const { submissionId } = req.body;
         let username = req.body.user
 
+        if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+            return res.status(400).json({ msg: 'Invalid submission ID.' });
+        }
+
         let submission = await Submission.findById( new ObjectId(submissionId) )
         let user = await User.findOne({ username });
 
@@ -432,6 +452,10 @@ router.delete('/deleteSubmissionAsOwner', verifyToken, async (req, res) => {
     try {
         const { submissionId } = req.body;
         let username = req.body.user
+
+        if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+            return res.status(400).json({ msg: 'Invalid submission ID.' });
+        }
 
         let submission = await Submission.findById( new ObjectId(submissionId) )
         let user = await User.findOne({ username });
@@ -496,6 +520,10 @@ router.put('/vote', verifyToken, async (req, res) => {
             return res.status(403).json({ msg: 'Invalid role for voting for a contest.' });
         }
 
+        if (!mongoose.Types.ObjectId.isValid(contestId)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
+
         let contest = await Contest.findById(contestId);
         if(!contest) {
             return res.status(400).json({ msg: 'No contest with this ID found.' })
@@ -536,6 +564,10 @@ router.get('/getSubmission', verifyToken, async (req, res) => {
         const { submissionId } = req.query;
         let username = req.body.user
 
+        if (!mongoose.Types.ObjectId.isValid(submissionId)) {
+            return res.status(400).json({ msg: 'Invalid submission ID.' });
+        }
+
         const submission = await Submission.findById(submissionId);
         if (!submission) {
             return res.status(400).json({ msg: 'Submission not found.' });
@@ -557,6 +589,10 @@ router.get('/getAllSubmissions', verifyToken, async (req, res) => {
     try {
         const { contestId, page = 1, limit = 10 } = req.query;
         let username = req.body.user
+
+        if (!mongoose.Types.ObjectId.isValid(contestId)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
 
         const contest = await Contest.findById(contestId);
         if (!contest) {

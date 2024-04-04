@@ -278,7 +278,6 @@ contestCB.fallback((method, serviceAddress, resource, data, gateway, error) => {
         console.error(`Error while trying to process the request (${method.toUpperCase()} ${serviceAddress}${resource})`);
     }
 
-
     return "The contest service is offline. Try again later.";
 });
 

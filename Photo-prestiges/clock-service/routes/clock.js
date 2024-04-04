@@ -4,11 +4,16 @@ const express = require('express');
 const router = express.Router();
 const gatewayToken = process.env.GATEWAY_TOKEN;
 const Contest = require('../models/Contest');
+const mongoose = require("mongoose");
 
 // Route for retrieving the remaining time of a contest
 router.get('/get', verifyToken, async (req, res) => {
     try {
         const { contestId } = req.query;
+
+        if (!mongoose.Types.ObjectId.isValid(contestId)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
 
         let contest = await Contest.findById(contestId);
         if(!contest) {

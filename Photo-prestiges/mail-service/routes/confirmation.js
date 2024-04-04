@@ -35,6 +35,10 @@ router.post('/end-of-contest', verifyToken, async (req, res) => {
     try {
         const { contestId } = req.body;
 
+        if (!mongoose.Types.ObjectId.isValid(contestId)) {
+            return res.status(400).json({ msg: 'Invalid contest ID.' });
+        }
+
         let contest = await Contest.findById(new ObjectId(contestId));
         if (!contest) {
             return res.status(400).json({ msg: 'Contest not found.' });
