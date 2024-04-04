@@ -12,10 +12,11 @@ const amqp = require('amqplib');
 const fs = require('fs');
 const FormData = require('form-data');
 const gatewayToken = process.env.GATEWAY_TOKEN
+const amqp_url = process.env.AMQPURL;
 
 async function connectToRabbitMQ() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         channel = await connection.createChannel();
 
         // Queue for update submissions

@@ -7,10 +7,11 @@ const User = require('../models/User');
 const amqp = require('amqplib');
 const gatewayToken = process.env.GATEWAY_TOKEN;
 let channel = null;
+const amqp_url = process.env.AMQPURL;
 
 async function connectToRabbitMQ() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         channel = await connection.createChannel();
 
         const exchangeName = 'user_exchange';

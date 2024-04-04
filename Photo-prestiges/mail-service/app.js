@@ -10,6 +10,7 @@ const Submission = require('./models/Submission')
 const app = express();
 const axios = require('axios');
 const gatewayToken = process.env.GATEWAY_TOKEN
+const amqp_url = process.env.AMQPURL;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -23,7 +24,7 @@ mongoose.connect('mongodb://localhost:27017/mail-service')
 // RabbitMQ-connection
 async function connectToRabbitMQUserCreate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const exchangeName = 'user_exchange';
         const queueName = 'mail_user_created_queue';
@@ -69,7 +70,7 @@ async function connectToRabbitMQUserCreate() {
 
 async function connectAndProcessUpdateContestStatus() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_status_exchange';
         const updateQueueName = 'mail_send_score_to_users_queue';
@@ -118,7 +119,7 @@ async function connectAndProcessUpdateContestStatus() {
 
 async function connectToRabbitMQCreateContest() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
         const contestQueueName = 'mail_contest_created_queue';
@@ -163,7 +164,7 @@ async function connectToRabbitMQCreateContest() {
 
 async function connectToRabbitMQCSubmissionCreate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const contestExchangeName = 'submission_exchange';
         const contestQueueName = 'mail_submission_created_queue';
@@ -203,7 +204,7 @@ async function connectToRabbitMQCSubmissionCreate() {
 
 async function connectAndProcessSubmissionsUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_submission_exchange';
         const updateQueueName = 'mail_update_submission_queue';
@@ -246,7 +247,7 @@ async function connectAndProcessSubmissionsUpdate() {
 
 async function connectAndProcessSubmissionScoreUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'submission_score_exchange';
         const updateQueueName = 'mail_update_submission_score_queue';
@@ -289,7 +290,7 @@ async function connectAndProcessSubmissionScoreUpdate() {
 
 async function connectAndProcessContestUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_contest_exchange';
         const updateQueueName = 'mail_update_contest_queue';
@@ -335,7 +336,7 @@ async function connectAndProcessContestUpdate() {
 
 async function connectAndDeleteContests() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_delete_exchange';
         const updateQueueName = 'mail_delete_contest_queue';
@@ -375,7 +376,7 @@ async function connectAndDeleteContests() {
 
 async function connectAndDeleteSubmissions() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'submission_deleted_exchange';
         const updateQueueName = 'mail_delete_submission_queue';
@@ -414,7 +415,7 @@ async function connectAndDeleteSubmissions() {
 
 async function connectAndProcessContestVotingUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_voting_exchange';
         const updateQueueName = 'mail_contest_votes_queue';

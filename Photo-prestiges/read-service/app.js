@@ -6,6 +6,7 @@ const amqp = require('amqplib');
 const Contest = require('./models/Contest');
 const readRoutes = require('./routes/read');
 const app = express();
+const amqp_url = process.env.AMQPURL;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -18,7 +19,7 @@ mongoose.connect('mongodb://localhost:27017/read-service')
 
 async function connectAndProcessCreateContest() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
         const contestQueueName = 'read_contest_created_queue';
@@ -63,7 +64,7 @@ async function connectAndProcessCreateContest() {
 
 async function connectAndProcessUpdateContest() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_contest_exchange';
         const updateQueueName = 'read_update_contest_queue';
@@ -110,7 +111,7 @@ async function connectAndProcessUpdateContest() {
 
 async function connectAndProcessContestStatusUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const exchangeName = 'contest_status_exchange';
         const queueName = 'read_contest_status_update_queue';
@@ -153,7 +154,7 @@ async function connectAndProcessContestStatusUpdate() {
 
 async function connectAndDeleteContests() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_delete_exchange';
         const updateQueueName = 'read_delete_contest_queue';
@@ -192,7 +193,7 @@ async function connectAndDeleteContests() {
 
 async function connectAndProcessContestVotingUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_voting_exchange';
         const updateQueueName = 'read_contest_votes_queue';

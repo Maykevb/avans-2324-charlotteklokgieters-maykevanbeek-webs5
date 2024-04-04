@@ -7,6 +7,7 @@ const amqp = require('amqplib');
 const User = require('./models/User');
 const bcrypt = require('bcryptjs');
 const app = express();
+const amqp_url = process.env.AMQPURL;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -20,7 +21,7 @@ mongoose.connect('mongodb://localhost:27017/auth-service', {
 // RabbitMQ-connection
 async function connectToRabbitMQUsersCreate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const exchangeName = 'user_exchange';
         const queueName = 'auth_user_created_queue';

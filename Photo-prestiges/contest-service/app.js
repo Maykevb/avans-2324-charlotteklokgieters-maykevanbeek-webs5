@@ -9,6 +9,7 @@ const User = require('./models/User');
 const Contest = require('./models/Contest')
 const Submission = require('./models/Submission')
 const app = express();
+const amqp_url = process.env.AMQPURL;
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -24,7 +25,7 @@ mongoose.connect('mongodb://localhost:27017/contest-service')
 // RabbitMQ-connecting
 async function connectToRabbitMQUserCreate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const exchangeName = 'user_exchange';
         const queueName = 'contest_user_created_queue';
@@ -66,7 +67,7 @@ async function connectToRabbitMQUserCreate() {
 
 async function connectAndUpdateStatusContest() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const exchangeName = 'contest_status_exchange';
         const queueName = 'contest_service_status_update_queue';
@@ -109,7 +110,7 @@ async function connectAndUpdateStatusContest() {
 
 async function connectSubmissionScoreUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const exchangeName = 'submission_score_exchange';
         const queueName = 'score_service_queue';

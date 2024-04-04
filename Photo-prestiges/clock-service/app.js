@@ -6,6 +6,7 @@ const amqp = require('amqplib');
 const Contest = require('./models/Contest');
 const clockRoutes = require('./routes/clock');
 const app = express();
+const amqp_url = process.env.AMQPURL;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -18,7 +19,7 @@ mongoose.connect('mongodb://localhost:27017/clock-service')
 
 async function connectAndCreateContests() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const contestExchangeName = 'contest_exchange';
         const contestQueueName = 'contest_clock_created_queue';
@@ -63,7 +64,7 @@ async function connectAndCreateContests() {
 
 async function connectAndProcessUpdateMessages() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'update_contest_exchange';
         const updateQueueName = 'update_contest_clock_queue';
@@ -117,7 +118,7 @@ async function connectAndProcessUpdateMessages() {
 
 async function connectAndDeleteContests() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_delete_exchange';
         const updateQueueName = 'clock_delete_contest_queue';
@@ -156,7 +157,7 @@ async function connectAndDeleteContests() {
 
 async function connectAndProcessContestVotingUpdate() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         const channel = await connection.createChannel();
         const updateExchangeName = 'contest_voting_exchange';
         const updateQueueName = 'clock_contest_votes_queue';
@@ -210,7 +211,7 @@ async function closeContest(contestId) {
 
         console.log(`The contest with ID ${contest._id} is closed because it has ended.`);
 
-        const channel = await amqp.connect('amqp://localhost').then(connection => connection.createChannel());
+        const channel = await amqp.connect(amqp_url).then(connection => connection.createChannel());
         const exchangeName = 'contest_status_exchange';
         await channel.assertExchange(exchangeName, 'direct', { durable: true });
         const message = {

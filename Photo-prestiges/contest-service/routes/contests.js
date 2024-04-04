@@ -14,10 +14,11 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const upload = multer();
+const amqp_url = process.env.AMQPURL;
 
 async function connectToRabbitMQ() {
     try {
-        const connection = await amqp.connect('amqp://localhost');
+        const connection = await amqp.connect(amqp_url);
         channel = await connection.createChannel();
 
         // Queue 1 for contests
