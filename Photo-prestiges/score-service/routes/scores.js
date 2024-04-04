@@ -108,6 +108,10 @@ router.put('/update-score', verifyToken, async (req, res) => {
             }
 
             if (percentageMatch === 100) {
+                submission.score = 0
+                await submission.save();
+
+                console.log('You are not allowed to upload the same image as the target image, cheater >:(');
                 return res.status(400).json({ msg: 'You are not allowed to upload the same image as the target image, cheater >:(' });
             }
 
