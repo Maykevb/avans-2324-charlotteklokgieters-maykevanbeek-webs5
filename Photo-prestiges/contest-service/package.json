@@ -1,5 +1,5 @@
 {
-  "name": "register-service",
+  "name": "contest-service",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -11,10 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.10.3",
-    "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.2.2"
+    "fs": "^0.0.1-security",
+    "mongoose": "^8.2.2",
+    "multer": "^1.4.5-lts.1",
+    "path": "^0.12.7"
   }
 }

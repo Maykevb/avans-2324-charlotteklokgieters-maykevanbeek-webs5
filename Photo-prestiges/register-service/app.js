@@ -1,21 +1,21 @@
+require('dotenv').config({ path: '../.env' })
+
 const express = require('express');
 const mongoose = require('mongoose');
 const usersRoutes = require('./routes/users');
-
 const app = express();
 
-// Middleware voor JSON-parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use('/api/users', usersRoutes);
+app.use('/users', usersRoutes);
 
-// MongoDB-verbinding
+// MongoDB-connection
 mongoose.connect('mongodb://localhost:27017/register-service')
     .then(() => console.log('MongoDB Connected'))
     .catch(err => console.log(err));
 
-// Start de server
-const PORT = process.env.PORT || 4000;
+// Starting the server
+const PORT = process.env.REGISTERPORT || 4000;
 app.listen(PORT, () => {
-    console.log(`Server gestart op poort ${PORT}`);
+    console.log(`Server started on port ${PORT}`);
 });
